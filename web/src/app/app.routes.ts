@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Routes } from '@angular/router';
 
+import { Admin } from './admin/admin';
+import { PermitTypes } from './admin/permit-types';
 import { authGuard, loginGuard } from './auth/auth.guard';
 import { Login } from './auth/login';
 import { NotAuthorized } from './auth/not-authorized';
@@ -110,12 +112,18 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'admin',
-    component: PlaceholderPage,
+    path: 'admin/permit-types',
+    component: PermitTypes,
     canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
-      title: 'Admin',
-      description: 'A future area for user, permit type, and checklist setup.',
+      roles: ['ADMIN'],
+    },
+  },
+  {
+    path: 'admin',
+    component: Admin,
+    canActivate: [authGuard, profileStatusGuard, roleGuard],
+    data: {
       roles: ['ADMIN'],
     },
   },

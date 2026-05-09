@@ -1,0 +1,122 @@
+<section class="permit-types-page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Permit Types</h1>
+    </div>
+  </div>
+
+  <form class="permit-type-form" [formGroup]="permitTypeForm" (ngSubmit)="savePermitType()" novalidate>
+    <h2>{{ formTitle() }}</h2>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" type="text" formControlName="name" />
+        @if (permitTypeForm.controls.name.invalid && permitTypeForm.controls.name.touched) {
+          <p class="field-error">Name is required.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="defaultRiskLevel">Default risk level</label>
+        <select id="defaultRiskLevel" formControlName="defaultRiskLevel">
+          @for (riskLevel of riskLevels; track riskLevel) {
+            <option [value]="riskLevel">{{ riskLevel }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="defaultDurationHours">Default duration hours</label>
+        <input id="defaultDurationHours" type="number" min="1" formControlName="defaultDurationHours" />
+        @if (
+          permitTypeForm.controls.defaultDurationHours.invalid &&
+          permitTypeForm.controls.defaultDurationHours.touched
+        ) {
+          <p class="field-error">Default duration must be greater than 0.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="maxDurationHours">Max duration hours</label>
+        <input id="maxDurationHours" type="number" min="1" formControlName="maxDurationHours" />
+        @if (permitTypeForm.controls.maxDurationHours.invalid && permitTypeForm.controls.maxDurationHours.touched) {
+          <p class="field-error">Max duration must be greater than 0.</p>
+        }
+      </div>
+
+      <div class="field field-wide">
+        <label for="description">Description</label>
+        <textarea id="description" rows="3" formControlName="description"></textarea>
+      </div>
+
+      <label class="checkbox-field">
+        <input type="checkbox" formControlName="active" />
+        Active
+      </label>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save permit type' }}</button>
+      @if (editingPermitType()) {
+        <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel</button>
+      }
+    </div>
+  </form>
+
+  <section class="permit-type-list" aria-labelledby="permit-types-list-title">
+    <h2 id="permit-types-list-title">All permit types</h2>
+
+    @if (permitTypesService.loading()) {
+      <p class="muted">Loading permit types...</p>
+    } @else if (permitTypesService.permitTypes().length === 0) {
+      <p class="muted">No permit types have been created yet.</p>
+    } @else {
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Risk</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (permitType of permitTypesService.permitTypes(); track permitType.id) {
+              <tr>
+                <td>
+                  <strong>{{ permitType.name }}</strong>
+                  @if (permitType.description) {
+                    <span>{{ permitType.description }}</span>
+                  }
+                </td>
+                <td>{{ permitType.defaultRiskLevel }}</td>
+                <td>{{ permitType.defaultDurationHours }}-{{ permitType.maxDurationHours }}h</td>
+                <td>
+                  <span class="status-badge" [class.inactive]="!permitType.active">
+                    {{ permitType.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button type="button" class="secondary-button" (click)="editPermitType(permitType)">Edit</button>
+                    <button type="button" class="secondary-button" (click)="toggleActive(permitType)">
+                      {{ permitType.active ? 'Deactivate' : 'Activate' }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>
