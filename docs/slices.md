@@ -1,4 +1,17 @@
-# TF-05 Permit App — Slice Plan
+# TF-05 Permit App — Slice Roadmap
+
+This file is the high-level roadmap/index for all implementation slices.
+
+Detailed slice specs live in:
+
+docs/slices/
+
+Use this file to understand the order.
+Use the detailed slice file to implement the current slice.
+
+Important:
+Codex must not implement from this roadmap directly.
+Codex must implement only the requested detailed slice file.
 
 ## Slice 0 — Project Setup
 Angular project created, Firebase SDK installed, Codex rules added.
