@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs';
 
 import { AuthService } from './auth/auth.service';
+import { UserService } from './auth/user.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import { AuthService } from './auth/auth.service';
 export class App {
   private readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
+  protected readonly userService = inject(UserService);
   protected readonly isLoginRoute = signal(this.router.url.startsWith('/login'));
 
   protected readonly navItems = [
@@ -39,6 +41,7 @@ export class App {
 
   protected async logout(): Promise<void> {
     await this.authService.logout();
+    this.userService.clearProfile();
     await this.router.navigateByUrl('/login');
   }
 }

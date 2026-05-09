@@ -3,6 +3,11 @@ import { Routes } from '@angular/router';
 
 import { authGuard, loginGuard } from './auth/auth.guard';
 import { Login } from './auth/login';
+import { NotAuthorized } from './auth/not-authorized';
+import { Profile } from './auth/profile';
+import { ProfileNotConfigured } from './auth/profile-not-configured';
+import { profileStatusGuard } from './auth/profile-status.guard';
+import { roleGuard } from './auth/role.guard';
 
 @Component({
   selector: 'app-placeholder-page',
@@ -69,7 +74,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: PlaceholderPage,
-    canActivate: [authGuard],
+    canActivate: [authGuard, profileStatusGuard],
     data: {
       title: 'Dashboard',
       description: 'A simple landing page for future permit status summaries.',
@@ -78,16 +83,17 @@ export const routes: Routes = [
   {
     path: 'permits/new',
     component: PlaceholderPage,
-    canActivate: [authGuard],
+    canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
       title: 'New Permit',
       description: 'A future starting point for creating a TF-05 safety permit.',
+      roles: ['SITE_USER'],
     },
   },
   {
     path: 'permits',
     component: PlaceholderPage,
-    canActivate: [authGuard],
+    canActivate: [authGuard, profileStatusGuard],
     data: {
       title: 'Permits',
       description: 'A future home for permit lists and permit detail navigation.',
@@ -96,29 +102,37 @@ export const routes: Routes = [
   {
     path: 'approvals',
     component: PlaceholderPage,
-    canActivate: [authGuard],
+    canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
       title: 'Approvals',
       description: 'A future queue for HSE and Construction Manager reviews.',
+      roles: ['HSE_MANAGER', 'CONSTRUCTION_MANAGER'],
     },
   },
   {
     path: 'admin',
     component: PlaceholderPage,
-    canActivate: [authGuard],
+    canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
       title: 'Admin',
       description: 'A future area for user, permit type, and checklist setup.',
+      roles: ['ADMIN'],
     },
   },
   {
     path: 'profile',
-    component: PlaceholderPage,
+    component: Profile,
+    canActivate: [authGuard, profileStatusGuard],
+  },
+  {
+    path: 'profile-not-configured',
+    component: ProfileNotConfigured,
     canActivate: [authGuard],
-    data: {
-      title: 'Profile',
-      description: 'A future page for the signed-in user profile and role.',
-    },
+  },
+  {
+    path: 'not-authorized',
+    component: NotAuthorized,
+    canActivate: [authGuard, profileStatusGuard],
   },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   { path: '**', redirectTo: 'dashboard' },

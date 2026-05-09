@@ -33,7 +33,10 @@
         </div>
 
         <div class="topbar-actions">
-          @if (authService.user()?.email) {
+          @if (userService.profile(); as profile) {
+            <span class="user-email">{{ profile.displayName }}</span>
+            <span class="role-badge">{{ profile.role }}</span>
+          } @else if (authService.user()?.email) {
             <span class="user-email">{{ authService.user()?.email }}</span>
           }
           <button type="button" class="logout-button" (click)="logout()">Logout</button>

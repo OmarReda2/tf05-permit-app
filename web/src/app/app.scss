@@ -116,6 +116,16 @@
   white-space: nowrap;
 }
 
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #e8f1ef;
+  color: #194f46;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .logout-button {
   min-height: 38px;
   padding: 8px 12px;
@@ -166,6 +176,10 @@
   }
 
   .user-email {
+    display: none;
+  }
+
+  .role-badge {
     display: none;
   }
 
