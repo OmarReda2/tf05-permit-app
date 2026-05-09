@@ -1,17 +1,54 @@
-<div class="app-shell">
-  <aside class="sidebar" aria-label="Primary navigation">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">TF</span>
-      <div>
-        <p class="brand-kicker">Safety Permit</p>
-        <p class="brand-name">TF-05 Permit App</p>
+@if (isLoginRoute()) {
+  <router-outlet />
+} @else {
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">TF</span>
+        <div>
+          <p class="brand-kicker">Safety Permit</p>
+          <p class="brand-name">TF-05 Permit App</p>
+        </div>
       </div>
+
+      <nav class="nav-list">
+        @for (item of navItems; track item.path) {
+          <a
+            class="nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.path !== '/permits' }"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <div>
+          <p class="topbar-kicker">Construction safety</p>
+          <p class="topbar-title">TF-05 Permit App</p>
+        </div>
+
+        <div class="topbar-actions">
+          @if (authService.user()?.email) {
+            <span class="user-email">{{ authService.user()?.email }}</span>
+          }
+          <button type="button" class="logout-button" (click)="logout()">Logout</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <router-outlet />
+      </main>
     </div>
 
-    <nav class="nav-list">
+    <nav class="bottom-nav" aria-label="Primary navigation">
       @for (item of navItems; track item.path) {
         <a
-          class="nav-link"
+          class="bottom-nav-link"
           [routerLink]="item.path"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: item.path !== '/permits' }"
@@ -20,31 +57,5 @@
         </a>
       }
     </nav>
-  </aside>
-
-  <div class="main-column">
-    <header class="topbar">
-      <div>
-        <p class="topbar-kicker">Construction safety</p>
-        <p class="topbar-title">TF-05 Permit App</p>
-      </div>
-    </header>
-
-    <main class="page-content">
-      <router-outlet />
-    </main>
   </div>
-
-  <nav class="bottom-nav" aria-label="Primary navigation">
-    @for (item of navItems; track item.path) {
-      <a
-        class="bottom-nav-link"
-        [routerLink]="item.path"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.path !== '/permits' }"
-      >
-        {{ item.label }}
-      </a>
-    }
-  </nav>
-</div>
+}

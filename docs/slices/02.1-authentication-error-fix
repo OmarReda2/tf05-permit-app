@@ -1,0 +1,35 @@
+Fix Slice 2 authentication redirect behavior only.
+
+Current issue:
+- After successful login, the user must manually reload before reaching the app.
+- Logout behavior should also be reviewed to ensure it redirects immediately.
+
+Before coding, inspect:
+- src/app/auth/auth.service.ts
+- src/app/auth/auth.guard.ts
+- src/app/auth/login.ts
+- src/app/app.ts
+- src/app/app.routes.ts
+
+Requirements:
+- After successful login, immediately navigate to /dashboard.
+- After logout, immediately navigate to /login.
+- Do not require browser reload.
+- Keep Firebase SDK direct usage.
+- Do not add roles.
+- Do not add Firestore.
+- Do not add registration/password reset.
+- Do not add dependencies.
+- Keep the fix minimal.
+
+Technical guidance:
+- Ensure login awaits signInWithEmailAndPassword, then routes to /dashboard.
+- Ensure logout awaits signOut, then routes to /login.
+- If Firebase auth state callback updates Angular state outside Angular change detection, wrap auth state updates in Angular NgZone or use a simple Angular-friendly state update.
+- Avoid rewriting the auth architecture.
+
+After changes:
+- Explain exactly what caused the reload issue.
+- Explain what files changed.
+- Explain why the fix is minimal.
+- Run npm run build.

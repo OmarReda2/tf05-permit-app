@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Routes } from '@angular/router';
 
+import { authGuard, loginGuard } from './auth/auth.guard';
+import { Login } from './auth/login';
+
 @Component({
   selector: 'app-placeholder-page',
   template: `
@@ -59,32 +62,41 @@ class PlaceholderPage {
 
 export const routes: Routes = [
   {
+    path: 'login',
+    component: Login,
+    canActivate: [loginGuard],
+  },
+  {
     path: 'dashboard',
     component: PlaceholderPage,
+    canActivate: [authGuard],
     data: {
       title: 'Dashboard',
       description: 'A simple landing page for future permit status summaries.',
     },
   },
   {
-    path: 'permits',
-    component: PlaceholderPage,
-    data: {
-      title: 'Permits',
-      description: 'A future home for permit lists and permit detail navigation.',
-    },
-  },
-  {
     path: 'permits/new',
     component: PlaceholderPage,
+    canActivate: [authGuard],
     data: {
       title: 'New Permit',
       description: 'A future starting point for creating a TF-05 safety permit.',
     },
   },
   {
+    path: 'permits',
+    component: PlaceholderPage,
+    canActivate: [authGuard],
+    data: {
+      title: 'Permits',
+      description: 'A future home for permit lists and permit detail navigation.',
+    },
+  },
+  {
     path: 'approvals',
     component: PlaceholderPage,
+    canActivate: [authGuard],
     data: {
       title: 'Approvals',
       description: 'A future queue for HSE and Construction Manager reviews.',
@@ -93,6 +105,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: PlaceholderPage,
+    canActivate: [authGuard],
     data: {
       title: 'Admin',
       description: 'A future area for user, permit type, and checklist setup.',
@@ -101,6 +114,7 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: PlaceholderPage,
+    canActivate: [authGuard],
     data: {
       title: 'Profile',
       description: 'A future page for the signed-in user profile and role.',

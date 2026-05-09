@@ -1,0 +1,54 @@
+<main class="login-page">
+  <section class="login-panel" aria-labelledby="login-title">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">TF</span>
+      <div>
+        <p class="brand-kicker">Safety Permit</p>
+        <p class="brand-name">TF-05 Permit App</p>
+      </div>
+    </div>
+
+    <div class="heading">
+      <h1 id="login-title">Sign in</h1>
+      <p>Use your Firebase account to access the permit app.</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+        />
+        @if (loginForm.controls.email.invalid && loginForm.controls.email.touched) {
+          <p class="field-error">Enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+        />
+        @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+          <p class="field-error">Password is required.</p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+  </section>
+</main>
