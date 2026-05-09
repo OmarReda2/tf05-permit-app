@@ -163,3 +163,18 @@ For every coding task:
 3. Avoid unrelated refactoring.
 4. Avoid unnecessary abstractions.
 5. After editing, summarize exactly what changed and why the solution is minimal.
+
+
+## Documentation Hierarchy
+
+Before coding, always read:
+
+1. AGENTS.md
+2. docs/mvp-requirements.md
+3. docs/slices.md
+
+Use Detailed App Docs only as product reference, not as permission to implement all features early.
+
+If a feature appears in the MVP docs but belongs to a later slice, do not implement it until that slice is requested.
+
+When working on a slice, implement only the smallest testable result for that slice.
