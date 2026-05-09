@@ -1,12 +1,20 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  protected readonly title = signal('web');
+  protected readonly navItems = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Permits', path: '/permits' },
+    { label: 'New Permit', path: '/permits/new' },
+    { label: 'Approvals', path: '/approvals' },
+    { label: 'Admin', path: '/admin' },
+    { label: 'Profile', path: '/profile' },
+  ];
 }

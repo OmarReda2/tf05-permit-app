@@ -1,0 +1,158 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: #f4f6f8;
+  color: #172033;
+}
+
+.sidebar {
+  display: flex;
+  flex: 0 0 248px;
+  flex-direction: column;
+  gap: 28px;
+  min-height: 100dvh;
+  padding: 24px 18px;
+  border-right: 1px solid #d8dee8;
+  background: #ffffff;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 8px;
+  background: #194f46;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.brand-kicker,
+.topbar-kicker {
+  margin: 0;
+  color: #5d6b7e;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.brand-name,
+.topbar-title {
+  margin: 3px 0 0;
+  color: #172033;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-link,
+.bottom-nav-link {
+  color: #344054;
+  text-decoration: none;
+}
+
+.nav-link {
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible,
+.nav-link.active {
+  background: #e8f1ef;
+  color: #194f46;
+}
+
+.main-column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  padding: 16px 28px;
+  border-bottom: 1px solid #d8dee8;
+  background: #ffffff;
+}
+
+.page-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  padding: 32px 28px;
+}
+
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    display: block;
+    padding-bottom: 72px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .topbar {
+    min-height: 64px;
+    padding: 14px 16px;
+  }
+
+  .page-content {
+    padding: 20px 16px;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-top: 1px solid #d8dee8;
+    background: #ffffff;
+  }
+
+  .bottom-nav-link {
+    min-width: 0;
+    padding: 12px 4px 14px;
+    color: #5d6b7e;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .bottom-nav-link.active {
+    color: #194f46;
+    background: #e8f1ef;
+  }
+}
