@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { Admin } from './admin/admin';
+import { ChecklistItems } from './admin/checklist-items';
 import { PermitTypes } from './admin/permit-types';
 import { authGuard, loginGuard } from './auth/auth.guard';
 import { Login } from './auth/login';
@@ -117,6 +118,14 @@ export const routes: Routes = [
     canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
       roles: ['ADMIN'],
+    },
+  },
+  {
+    path: 'admin/checklist-items',
+    component: ChecklistItems,
+    canActivate: [authGuard, profileStatusGuard, roleGuard],
+    data: {
+      roles: ['ADMIN', 'HSE_MANAGER'],
     },
   },
   {

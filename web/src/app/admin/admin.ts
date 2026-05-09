@@ -10,7 +10,10 @@ import { RouterLink } from '@angular/router';
       <h1>Admin</h1>
       <p>Manage MVP configuration for the TF-05 permit app.</p>
 
-      <a routerLink="/admin/permit-types">Permit Types</a>
+      <div class="admin-links">
+        <a routerLink="/admin/permit-types">Permit Types</a>
+        <a routerLink="/admin/checklist-items">Checklist Items</a>
+      </div>
     </section>
   `,
   styles: `
@@ -41,6 +44,12 @@ import { RouterLink } from '@angular/router';
       margin: 14px 0 24px;
       color: #475467;
       line-height: 1.6;
+    }
+
+    .admin-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     a {

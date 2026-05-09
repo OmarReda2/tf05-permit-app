@@ -5,6 +5,13 @@ import { filter } from 'rxjs';
 
 import { AuthService } from './auth/auth.service';
 import { UserService } from './auth/user.service';
+import { type UserRole } from './auth/user-profile.model';
+
+interface NavItem {
+  label: string;
+  path: string;
+  roles?: readonly UserRole[];
+}
 
 @Component({
   selector: 'app-root',
@@ -19,12 +26,13 @@ export class App {
   protected readonly userService = inject(UserService);
   protected readonly isLoginRoute = signal(this.router.url.startsWith('/login'));
 
-  protected readonly navItems = [
+  protected readonly navItems: readonly NavItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Permits', path: '/permits' },
     { label: 'New Permit', path: '/permits/new' },
     { label: 'Approvals', path: '/approvals' },
-    { label: 'Admin', path: '/admin' },
+    { label: 'Admin', path: '/admin', roles: ['ADMIN'] },
+    { label: 'Checklist Items', path: '/admin/checklist-items', roles: ['ADMIN', 'HSE_MANAGER'] },
     { label: 'Profile', path: '/profile' },
   ];
 
@@ -43,5 +51,13 @@ export class App {
     await this.authService.logout();
     this.userService.clearProfile();
     await this.router.navigateByUrl('/login');
+  }
+
+  protected canShowNavItem(item: NavItem): boolean {
+    if (!item.roles) {
+      return true;
+    }
+
+    return this.userService.hasRole(item.roles);
   }
 }
