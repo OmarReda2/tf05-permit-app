@@ -1,0 +1,59 @@
+<section class="dashboard-page">
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Dashboard</h1>
+      <p>{{ dashboardSubtitle() }}</p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <section class="state-panel">
+      <p>Loading dashboard...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel error">
+      <p>{{ errorMessage() }}</p>
+    </section>
+  } @else if (permits().length === 0) {
+    <section class="state-panel">
+      <p>No permits found yet.</p>
+      @if (currentRole() === 'SITE_USER') {
+        <a routerLink="/permits/new">Create your first permit.</a>
+      }
+    </section>
+  } @else {
+    <section class="summary-grid" aria-label="Dashboard summary">
+      @for (card of cards(); track card.label) {
+        <article class="summary-card">
+          <p>{{ card.label }}</p>
+          <strong>{{ card.value }}</strong>
+          <span>{{ card.detail }}</span>
+        </article>
+      }
+    </section>
+
+    <section class="recent-section">
+      <div class="section-heading">
+        <h2>Recent Permits</h2>
+        <a routerLink="/permits">View all</a>
+      </div>
+
+      <div class="recent-list">
+        @for (permit of recentPermits(); track permit.id) {
+          <article class="permit-card">
+            <div class="card-heading">
+              <strong>{{ permit.permitNumber }}</strong>
+              <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+            </div>
+            <p>{{ permit.permitTypeNameSnapshot }}</p>
+            <p>Location: {{ permit.workLocation }}</p>
+            <p>Expiry state: {{ expiryState(permit) }}</p>
+            <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
+            <a [routerLink]="['/permits', permit.id]">View details</a>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</section>
