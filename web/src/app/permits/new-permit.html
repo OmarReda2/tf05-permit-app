@@ -1,0 +1,188 @@
+<section class="new-permit-page">
+  <div class="page-heading">
+    <p class="eyebrow">Permits</p>
+    <h1>New Permit</h1>
+  </div>
+
+  <form [formGroup]="permitForm" (ngSubmit)="submitPermit()" novalidate>
+    <section class="form-section">
+      <h2>Basic information</h2>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="permitTypeId">Permit type</label>
+          <select
+            id="permitTypeId"
+            formControlName="permitTypeId"
+            #permitTypeSelect
+            (change)="selectPermitType(permitTypeSelect.value)"
+          >
+            <option value="">Select permit type</option>
+            @for (permitType of activePermitTypes(); track permitType.id) {
+              <option [value]="permitType.id">{{ permitType.name }}</option>
+            }
+          </select>
+          @if (permitForm.controls.permitTypeId.invalid && permitForm.controls.permitTypeId.touched) {
+            <p class="field-error">Permit type is required.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="workLocation">Work location</label>
+          <input id="workLocation" type="text" formControlName="workLocation" />
+          @if (permitForm.controls.workLocation.invalid && permitForm.controls.workLocation.touched) {
+            <p class="field-error">Work location is required.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="startTime">Start date/time</label>
+          <input id="startTime" type="datetime-local" formControlName="startTime" />
+          @if (permitForm.controls.startTime.invalid && permitForm.controls.startTime.touched) {
+            <p class="field-error">Start date/time is required.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="durationHours">Duration hours</label>
+          <input id="durationHours" type="number" min="1" formControlName="durationHours" />
+          @if (permitForm.controls.durationHours.invalid && permitForm.controls.durationHours.touched) {
+            <p class="field-error">Duration must be greater than 0.</p>
+          }
+          @if (selectedPermitType(); as permitType) {
+            <p class="hint">Maximum: {{ permitType.maxDurationHours }} hours</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="riskLevel">Risk level</label>
+          <select id="riskLevel" formControlName="riskLevel">
+            @for (riskLevel of riskLevels; track riskLevel) {
+              <option [value]="riskLevel">{{ riskLevel }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Work details</h2>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="contractorOrTrade">Contractor / trade</label>
+          <input id="contractorOrTrade" type="text" formControlName="contractorOrTrade" />
+          @if (permitForm.controls.contractorOrTrade.invalid && permitForm.controls.contractorOrTrade.touched) {
+            <p class="field-error">Contractor / trade is required.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="numberOfWorkers">Number of workers</label>
+          <input id="numberOfWorkers" type="number" min="1" formControlName="numberOfWorkers" />
+          @if (permitForm.controls.numberOfWorkers.invalid && permitForm.controls.numberOfWorkers.touched) {
+            <p class="field-error">Number of workers must be greater than 0.</p>
+          }
+        </div>
+
+        <div class="field field-wide">
+          <label for="scopeOfWork">Scope of work</label>
+          <textarea id="scopeOfWork" rows="3" formControlName="scopeOfWork"></textarea>
+          @if (permitForm.controls.scopeOfWork.invalid && permitForm.controls.scopeOfWork.touched) {
+            <p class="field-error">Scope of work is required.</p>
+          }
+        </div>
+
+        <div class="field field-wide">
+          <label for="hazards">Hazards</label>
+          <textarea id="hazards" rows="3" formControlName="hazards"></textarea>
+          <p class="hint">Required for medium or high risk work.</p>
+        </div>
+
+        <div class="field field-wide">
+          <label for="equipment">Equipment / plant</label>
+          <textarea id="equipment" rows="3" formControlName="equipment"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Checklist</h2>
+
+      @if (!selectedPermitType()) {
+        <p class="muted">Select a permit type to load checklist items.</p>
+      } @else if (checklistItemsService.loading()) {
+        <p class="muted">Loading checklist items...</p>
+      } @else if (activeChecklistItems().length === 0) {
+        <p class="muted">No active checklist items are configured for this permit type.</p>
+      } @else {
+        <div class="checklist">
+          @for (checklistItem of activeChecklistItems(); track checklistItem.id) {
+            <label class="checklist-item">
+              <input
+                type="checkbox"
+                #checklistInput
+                [checked]="checkedItems()[checklistItem.id] === true"
+                (change)="setChecklistChecked(checklistItem.id, checklistInput.checked)"
+              />
+              <span>
+                {{ checklistItem.text }}
+                <strong>{{ checklistItem.required ? 'Required' : 'Optional' }}</strong>
+              </span>
+            </label>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="form-section">
+      <h2>Review and submit</h2>
+
+      <dl class="summary">
+        <div>
+          <dt>Permit type</dt>
+          <dd>{{ selectedPermitType()?.name || 'Not selected' }}</dd>
+        </div>
+        <div>
+          <dt>Work location</dt>
+          <dd>{{ permitForm.controls.workLocation.value || 'Not set' }}</dd>
+        </div>
+        <div>
+          <dt>Start time</dt>
+          <dd>{{ permitForm.controls.startTime.value || 'Not set' }}</dd>
+        </div>
+        <div>
+          <dt>Duration</dt>
+          <dd>{{ permitForm.controls.durationHours.value }} hours</dd>
+        </div>
+        <div>
+          <dt>Expiry time</dt>
+          <dd>{{ formatDateTime(expiryTime()) }}</dd>
+        </div>
+        <div>
+          <dt>Risk level</dt>
+          <dd>{{ permitForm.controls.riskLevel.value }}</dd>
+        </div>
+        <div>
+          <dt>Checklist</dt>
+          <dd>{{ checklistCompletion() }}</dd>
+        </div>
+      </dl>
+
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      @if (successMessage()) {
+        <p class="form-success" role="status">{{ successMessage() }}</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Submitting...' : 'Submit for HSE Approval' }}
+        </button>
+        <button type="button" class="secondary-button" (click)="cancel()">Cancel</button>
+      </div>
+    </section>
+  </form>
+</section>

@@ -29,7 +29,7 @@ export class App {
   protected readonly navItems: readonly NavItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Permits', path: '/permits' },
-    { label: 'New Permit', path: '/permits/new' },
+    { label: 'New Permit', path: '/permits/new', roles: ['SITE_USER'] },
     { label: 'Approvals', path: '/approvals' },
     { label: 'Admin', path: '/admin', roles: ['ADMIN'] },
     { label: 'Checklist Items', path: '/admin/checklist-items', roles: ['ADMIN', 'HSE_MANAGER'] },

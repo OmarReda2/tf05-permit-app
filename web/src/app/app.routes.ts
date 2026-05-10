@@ -11,6 +11,7 @@ import { Profile } from './auth/profile';
 import { ProfileNotConfigured } from './auth/profile-not-configured';
 import { profileStatusGuard } from './auth/profile-status.guard';
 import { roleGuard } from './auth/role.guard';
+import { NewPermit } from './permits/new-permit';
 
 @Component({
   selector: 'app-placeholder-page',
@@ -85,11 +86,9 @@ export const routes: Routes = [
   },
   {
     path: 'permits/new',
-    component: PlaceholderPage,
+    component: NewPermit,
     canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
-      title: 'New Permit',
-      description: 'A future starting point for creating a TF-05 safety permit.',
       roles: ['SITE_USER'],
     },
   },
