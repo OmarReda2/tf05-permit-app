@@ -2,9 +2,12 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 
 import { UserService } from '../auth/user.service';
-import { expiryState, formatDateTime, statusLabel } from './permit-display';
-import { type Permit } from './permit.model';
+import { expiryState, expiryStateKey, formatDateTime, type PermitExpiryState, statusLabel } from './permit-display';
+import { type Permit, type PermitStatus } from './permit.model';
 import { PermitService } from './permit.service';
+
+type StatusFilter = 'ALL' | Exclude<PermitStatus, 'EXPIRED'>;
+type ExpiryStateFilter = 'ALL' | PermitExpiryState;
 
 @Component({
   selector: 'app-permit-list',
@@ -19,7 +22,8 @@ export class PermitList implements OnInit {
   protected readonly permits = signal<Permit[]>([]);
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
-  protected readonly statusFilter = signal('ALL');
+  protected readonly statusFilter = signal<StatusFilter>('ALL');
+  protected readonly expiryStateFilter = signal<ExpiryStateFilter>('ALL');
 
   protected readonly statusLabel = statusLabel;
   protected readonly expiryState = expiryState;
@@ -30,17 +34,35 @@ export class PermitList implements OnInit {
   }
 
   protected filteredPermits(): Permit[] {
-    const status = this.statusFilter();
+    const statusFilter = this.statusFilter();
+    const expiryFilter = this.expiryStateFilter();
 
-    if (status === 'ALL') {
-      return this.permits();
+    return this.permits().filter((permit) => {
+      const matchesStatus = statusFilter === 'ALL' || permit.status === statusFilter;
+      const matchesExpiry = expiryFilter === 'ALL' || expiryStateKey(permit) === expiryFilter;
+
+      return matchesStatus && matchesExpiry;
+    });
+  }
+
+  protected canCreatePermit(): boolean {
+    return this.userService.profile()?.role === 'SITE_USER';
+  }
+
+  protected emptyMessage(): string {
+    if (this.canCreatePermit() && this.permits().length === 0) {
+      return 'No permits found.';
     }
 
-    return this.permits().filter((permit) => permit.status === status);
+    return 'No permits found for the selected filters.';
   }
 
   protected setStatusFilter(status: string): void {
-    this.statusFilter.set(status);
+    this.statusFilter.set(status as StatusFilter);
+  }
+
+  protected setExpiryStateFilter(expiryState: string): void {
+    this.expiryStateFilter.set(expiryState as ExpiryStateFilter);
   }
 
   private async loadPermits(): Promise<void> {

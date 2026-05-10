@@ -1,5 +1,14 @@
 import { type Permit, type PermitStatus } from './permit.model';
 
+export type PermitExpiryState =
+  | 'ACTIVE'
+  | 'EXPIRING_SOON'
+  | 'EXPIRED'
+  | 'AWAITING_HSE_APPROVAL'
+  | 'AWAITING_FINAL_APPROVAL'
+  | 'NOT_APPLICABLE'
+  | 'CLOSED';
+
 export function statusLabel(status: PermitStatus): string {
   switch (status) {
     case 'SUBMITTED':
@@ -17,22 +26,57 @@ export function statusLabel(status: PermitStatus): string {
   }
 }
 
-export function expiryState(permit: Permit): string {
+export function expiryStateKey(permit: Permit): PermitExpiryState {
+  if (permit.status === 'SUBMITTED') {
+    return 'AWAITING_HSE_APPROVAL';
+  }
+
+  if (permit.status === 'HSE_APPROVED') {
+    return 'AWAITING_FINAL_APPROVAL';
+  }
+
+  if (permit.status === 'REJECTED') {
+    return 'NOT_APPLICABLE';
+  }
+
+  if (permit.status === 'CLOSED') {
+    return 'CLOSED';
+  }
+
   if (permit.status !== 'APPROVED' || !permit.expiryTime) {
-    return 'Not Active';
+    return 'NOT_APPLICABLE';
   }
 
   const remainingMs = permit.expiryTime.getTime() - Date.now();
 
   if (remainingMs <= 0) {
-    return 'Expired';
+    return 'EXPIRED';
   }
 
   if (remainingMs <= 2 * 60 * 60 * 1000) {
-    return 'Expiring Soon';
+    return 'EXPIRING_SOON';
   }
 
-  return 'Active';
+  return 'ACTIVE';
+}
+
+export function expiryState(permit: Permit): string {
+  switch (expiryStateKey(permit)) {
+    case 'ACTIVE':
+      return 'Active';
+    case 'EXPIRING_SOON':
+      return 'Expiring Soon';
+    case 'EXPIRED':
+      return 'Expired';
+    case 'AWAITING_HSE_APPROVAL':
+      return 'Awaiting HSE Approval';
+    case 'AWAITING_FINAL_APPROVAL':
+      return 'Awaiting Final Approval';
+    case 'NOT_APPLICABLE':
+      return 'Not Applicable';
+    case 'CLOSED':
+      return 'Closed';
+  }
 }
 
 export function formatDateTime(date: Date | null): string {

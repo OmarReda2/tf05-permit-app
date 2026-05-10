@@ -44,6 +44,17 @@ label {
   font-weight: 700;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.filters label {
+  flex: 1 1 220px;
+}
+
 select {
   min-height: 40px;
   padding: 8px 10px;
@@ -124,6 +135,10 @@ th {
   .page-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .filters {
+    justify-content: stretch;
   }
 
   .desktop-list {
