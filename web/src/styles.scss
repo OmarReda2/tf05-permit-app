@@ -151,33 +151,19 @@ a {
 }
 
 .brand-mark {
+  display: inline-grid;
   position: relative;
   overflow: hidden;
+  place-items: center;
   color: transparent;
   font-size: 0;
 }
 
-.brand-mark::before {
-  position: absolute;
-  top: 11px;
-  left: 9px;
-  width: 23px;
-  height: 6px;
-  border-radius: 2px;
-  background: #ffffff;
-  box-shadow: 7px 7px 0 -1px #ffffff;
-  content: '';
-}
-
-.brand-mark::after {
-  position: absolute;
-  right: 8px;
-  bottom: 11px;
-  width: 13px;
-  height: 6px;
-  border-radius: 2px;
-  background: var(--tf-accent);
-  content: '';
+.brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 a:focus-visible,
@@ -778,22 +764,14 @@ textarea:focus-visible {
 
 .theme-icon-moon::before {
   position: absolute;
-  inset: 2px;
+  inset: 1px;
   border-radius: 50%;
-  background: currentColor;
+  box-shadow: inset 5px -4px 0 0 currentColor;
   content: '';
 }
 
 .theme-icon-moon::after {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--tf-surface);
-  content: '';
-  transition: background-color 140ms ease;
+  content: none;
 }
 
 .bottom-nav {
