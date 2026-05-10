@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { ThemeService } from '../theme.service';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
+  protected readonly themeService = inject(ThemeService);
 
   protected readonly isSubmitting = signal(false);
   protected readonly errorMessage = signal('');
@@ -22,6 +24,10 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
+
+  protected toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
   protected async submit(): Promise<void> {
     this.errorMessage.set('');

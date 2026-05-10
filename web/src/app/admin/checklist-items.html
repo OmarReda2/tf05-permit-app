@@ -7,8 +7,13 @@
     </div>
   </div>
 
-  <form class="checklist-form" [formGroup]="checklistItemForm" (ngSubmit)="saveChecklistItem()" novalidate>
-    <section class="selector-section">
+  <div class="checklist-config">
+    <section class="context-panel" [formGroup]="checklistItemForm">
+      <div>
+        <h2>Permit type context</h2>
+        <p>Select a permit type before creating or editing checklist items.</p>
+      </div>
+
       <div class="field">
         <label for="permitTypeId">Permit type</label>
         <select
@@ -26,82 +31,102 @@
           <p class="field-error">Permit type is required.</p>
         }
       </div>
-    </section>
 
-    <section class="editor-section">
-      <h2>{{ formTitle() }}</h2>
-
-      <div class="form-grid">
-        <div class="field field-wide">
-          <label for="text">Checklist text</label>
-          <textarea id="text" rows="3" formControlName="text"></textarea>
-          @if (checklistItemForm.controls.text.invalid && checklistItemForm.controls.text.touched) {
-            <p class="field-error">Checklist text is required.</p>
-          }
-        </div>
-
-        <div class="field">
-          <label for="order">Order</label>
-          <input id="order" type="number" min="1" formControlName="order" />
-          @if (checklistItemForm.controls.order.invalid && checklistItemForm.controls.order.touched) {
-            <p class="field-error">Order must be 1 or greater.</p>
-          }
-        </div>
-
-        <div class="toggle-grid">
-          <label class="checkbox-field">
-            <input type="checkbox" formControlName="required" />
-            Required
-          </label>
-
-          <label class="checkbox-field">
-            <input type="checkbox" formControlName="active" />
-            Active
-          </label>
-        </div>
-      </div>
-
-      @if (errorMessage()) {
-        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      @if (selectedPermitTypeId()) {
+        <p class="context-note">Checklist items below are linked to the selected permit type.</p>
       }
-
-      <div class="form-actions">
-        <button type="submit" [disabled]="isSaving()">
-          @if (isSaving()) {
-            <span class="button-spinner" aria-hidden="true"></span>
-          }
-          {{ isSaving() ? 'Saving...' : 'Save checklist item' }}
-        </button>
-        @if (editingChecklistItem()) {
-          <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel</button>
-        }
-      </div>
     </section>
-  </form>
 
-  <section class="checklist-list" aria-labelledby="checklist-items-list-title">
-    <h2 id="checklist-items-list-title">Checklist items</h2>
+    <div class="config-workspace">
+      <form class="checklist-form" [formGroup]="checklistItemForm" (ngSubmit)="saveChecklistItem()" novalidate>
+        <section class="editor-section">
+          <div class="section-header">
+            <div>
+              <p class="section-kicker">{{ editingChecklistItem() ? 'Editing checklist item' : 'Create checklist item' }}</p>
+              <h2>{{ formTitle() }}</h2>
+            </div>
+            @if (editingChecklistItem()) {
+              <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel edit</button>
+            }
+          </div>
 
-    @if (!selectedPermitTypeId()) {
-      <p class="muted">Select a permit type to manage checklist items.</p>
-    } @else if (checklistItemsService.loading()) {
-      <p class="muted">Loading checklist items...</p>
-    } @else if (checklistItemsService.checklistItems().length === 0) {
-      <p class="muted">No checklist items have been created for this permit type yet.</p>
-    } @else {
-      <div class="table-shell">
-        <table>
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Checklist item</th>
-              <th>Required</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (checklistItem of checklistItemsService.checklistItems(); track checklistItem.id) {
+          <div class="form-grid">
+            <div class="field field-wide">
+              <label for="text">Checklist text</label>
+              <textarea id="text" rows="2" formControlName="text"></textarea>
+              @if (checklistItemForm.controls.text.invalid && checklistItemForm.controls.text.touched) {
+                <p class="field-error">Checklist text is required.</p>
+              }
+            </div>
+
+            <div class="field">
+              <label for="order">Order</label>
+              <input id="order" type="number" min="1" formControlName="order" />
+              @if (checklistItemForm.controls.order.invalid && checklistItemForm.controls.order.touched) {
+                <p class="field-error">Order must be 1 or greater.</p>
+              }
+            </div>
+
+            <div class="toggle-grid">
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="required" />
+                Required
+              </label>
+
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="active" />
+                Active
+              </label>
+            </div>
+          </div>
+
+          @if (errorMessage()) {
+            <p class="form-error" role="alert">{{ errorMessage() }}</p>
+          }
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="button-spinner" aria-hidden="true"></span>
+              }
+              {{ isSaving() ? 'Saving...' : 'Save checklist item' }}
+            </button>
+          </div>
+        </section>
+      </form>
+
+      <section class="checklist-list" aria-labelledby="checklist-items-list-title">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Selected permit type</p>
+            <h2 id="checklist-items-list-title">Checklist items</h2>
+          </div>
+        </div>
+
+        @if (!selectedPermitTypeId()) {
+          <p class="muted empty-state">Select a permit type to manage checklist items.</p>
+        } @else if (checklistItemsService.loading()) {
+          <div class="loading-state" aria-live="polite">
+            <span class="linear-progress" aria-hidden="true"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line short"></span>
+          </div>
+        } @else if (checklistItemsService.checklistItems().length === 0) {
+          <p class="muted empty-state">No checklist items yet.</p>
+        } @else {
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Checklist item</th>
+                  <th>Required</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (checklistItem of checklistItemsService.checklistItems(); track checklistItem.id) {
               <tr>
                 <td>{{ checklistItem.order }}</td>
                 <td>
@@ -126,9 +151,11 @@
                 </td>
               </tr>
             }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
 </section>

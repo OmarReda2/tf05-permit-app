@@ -23,6 +23,13 @@
   pointer-events: none;
 }
 
+.login-theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+}
+
 .login-panel {
   position: relative;
   z-index: 1;

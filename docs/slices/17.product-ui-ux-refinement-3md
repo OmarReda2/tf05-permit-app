@@ -1,0 +1,155 @@
+Implement Slice 17 only: Layout & Interaction Polish.
+
+Context:
+The current UI direction is good, but several important layout and interaction issues remain:
+- Sidebar is still not fixed/sticky when scrolling.
+- Sidebar collapse icon moves under the logo when collapsed.
+- Dark mode toggle is hidden inside the account dropdown but should be globally accessible, including on the login/sign-in page.
+- Browser tab favicon still shows Angular icon instead of the app logo.
+- Account dropdown spacing/alignment needs fixing on mobile.
+- Checklist Items page is visually unbalanced and not well organized.
+- Desktop and mobile behavior must both be handled carefully.
+
+Important:
+This is a UI/UX polish slice only.
+Do not change business logic.
+Do not change Firestore models.
+Do not change Firestore rules.
+Do not change auth logic except if needed for public theme handling.
+Do not add dependencies.
+Do not rewrite the app.
+Keep existing routes and functionality working.
+
+1. Fixed/sticky sidebar
+- Make the desktop sidebar fixed or sticky during page scroll.
+- The main content should scroll independently or align correctly beside the sidebar.
+- The sidebar must remain visible while scrolling long pages.
+- Ensure this works in both expanded and collapsed states.
+- Do not apply desktop sidebar behavior to mobile.
+
+2. Sidebar collapse control
+- Fix the collapse/expand icon position.
+- It must stay beside or aligned with the logo/header area, not move under the logo.
+- When collapsed, there must still be a clear visible expand control.
+- Collapse/expand animation should be smooth.
+- Collapsed rail should show icons clearly.
+- If labels are hidden in collapsed mode, keep icons and tooltips if simple.
+- Avoid the old bottom “Collapse” button style.
+
+3. Public dark/light mode toggle
+- Move dark/light mode toggle outside the account dropdown.
+- It should be visible in the app header for authenticated users.
+- It should also be available on the login/sign-in page.
+- Persist theme preference in localStorage.
+- Apply theme before or during first render as much as possible to avoid theme flicker.
+- Dark mode must use existing design tokens/CSS variables.
+- Do not create random dark colors.
+- Do not break print styles.
+
+4. Browser favicon and title
+- Replace the Angular favicon with a TF-05 app logo/favicon.
+- Use a simple app-aligned icon, preferably based on the existing “TF” logo mark.
+- Ensure browser tab title is “TF-05 Permit App”.
+- If dynamic page title already exists, preserve it while keeping the app name.
+
+5. Account dropdown mobile spacing
+- Fix account chip/dropdown spacing on mobile.
+- Dropdown should not touch screen edges.
+- Dropdown should align safely within viewport.
+- Dropdown should close on outside click and Escape.
+- Keep touch targets comfortable.
+- Keep chevron/dropdown indicator visible.
+- Do not make account controls crowded on small screens.
+
+6. Checklist Items page refinement
+- The Checklist Items page is currently visually unbalanced and not well organized.
+- Rework it into a cleaner Google/Firebase-style configuration screen.
+
+Required layout:
+- Page header stays clear: title + short description.
+- Use a better two-zone structure:
+  1. Permit type selection / context panel
+  2. Checklist item creation/editing + checklist item list
+
+Desktop behavior:
+- Use a clean responsive grid.
+- Permit type selector should not feel detached or floating awkwardly.
+- The create/edit form should have better grouping, spacing, and alignment.
+- Textarea should not dominate the page unnecessarily.
+- Required/Active checkboxes should be visually aligned and easier to scan.
+- Save button should align naturally with the form.
+- Checklist item list should be visually connected to the selected permit type.
+
+Mobile behavior:
+- Stack sections vertically.
+- Inputs must be full width.
+- Checkboxes must have comfortable tap targets.
+- Save button should be full width or clearly placed.
+- No horizontal scrolling.
+
+Checklist item list:
+- If no permit type is selected, show a calm empty state:
+  “Select a permit type to manage checklist items.”
+- If selected permit type has no items, show:
+  “No checklist items yet.”
+- Existing checklist items should appear as clean rows/cards with:
+  - order
+  - checklist text
+  - required/optional
+  - active/inactive
+  - edit action
+  - activate/deactivate action
+- Avoid noisy colorful chips.
+- Use calm neutral badges with subtle semantic indication.
+
+Form UX:
+- Clearly distinguish create mode vs edit mode.
+- If editing, show “Editing checklist item” and provide Cancel edit.
+- Validation messages should be close to the related field.
+- Keep the UI calm, structured, and admin-console-like.
+
+Do not:
+- Change checklist business logic.
+- Change Firestore model.
+- Change permissions.
+- Add drag-and-drop ordering.
+- Add complex filtering/search unless already trivial.
+- Add dependencies.
+
+7. Desktop/mobile behavior
+- Desktop:
+  - fixed/sticky sidebar
+  - header remains clean
+  - dark mode toggle visible
+  - account menu aligned
+- Mobile:
+  - no desktop sidebar
+  - bottom navigation remains usable
+  - account menu/dropdown fits viewport
+  - theme toggle available without crowding the UI
+  - content should not be hidden behind bottom nav
+
+8. Verification
+After implementation, verify:
+- Sidebar stays fixed/sticky while scrolling on desktop.
+- Collapse icon stays correctly positioned when expanded and collapsed.
+- Collapsed sidebar can be expanded again clearly.
+- Dark mode toggle works on login page.
+- Dark mode toggle works inside authenticated app.
+- Theme persists after refresh.
+- Favicon is no longer Angular icon.
+- Browser tab title is correct.
+- Account dropdown works on desktop and mobile.
+- Checklist Items page feels like a clean configuration screen, not a scattered form layout.
+- Checklist Items page works on desktop and mobile.
+- No business logic changed.
+- No dependencies added.
+
+Before changing files:
+- Briefly explain planned changes and files likely to change.
+
+After changing files:
+- Summarize exactly what changed.
+- Confirm no business logic, Firestore model, or rules changes.
+- Confirm no dependencies were added.
+- Run npm run build.

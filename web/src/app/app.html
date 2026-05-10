@@ -63,6 +63,9 @@
         </div>
 
         <div class="topbar-actions">
+          <button type="button" class="theme-toggle" (click)="toggleTheme()">
+            {{ themeLabel() }}
+          </button>
           @if (userService.profile(); as profile) {
             <div class="account-menu">
               <button
@@ -86,7 +89,6 @@
                   @for (item of secondaryAccountItems(); track item.path) {
                     <a [routerLink]="item.path" role="menuitem" (click)="closeAccountMenu()">{{ item.label }}</a>
                   }
-                  <button type="button" role="menuitem" (click)="toggleTheme()">{{ themeLabel() }}</button>
                   <button type="button" role="menuitem" (click)="requestLogout()">Logout</button>
                 </div>
               }

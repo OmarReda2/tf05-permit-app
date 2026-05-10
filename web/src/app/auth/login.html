@@ -1,4 +1,8 @@
 <main class="login-page">
+  <button type="button" class="theme-toggle login-theme-toggle" (click)="toggleTheme()">
+    {{ themeService.themeLabel() }}
+  </button>
+
   <section class="login-panel" aria-labelledby="login-title">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">TF</span>

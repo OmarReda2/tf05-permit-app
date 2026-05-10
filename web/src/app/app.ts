@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs';
 
 import { AuthService } from './auth/auth.service';
+import { ThemeService } from './theme.service';
 import { UserService } from './auth/user.service';
 import { type UserRole } from './auth/user-profile.model';
 
@@ -22,8 +23,6 @@ interface NavGroup {
   items: readonly NavItem[];
 }
 
-type ThemePreference = 'light' | 'dark';
-
 @Component({
   selector: 'app-root',
   imports: [RouterLink, RouterOutlet],
@@ -36,15 +35,13 @@ export class App {
   private readonly title = inject(Title);
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   protected readonly authService = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
   protected readonly userService = inject(UserService);
   protected readonly currentUrl = signal(this.router.url);
   protected readonly sidebarCollapsed = signal(localStorage.getItem('tf05-sidebar') === 'collapsed');
   protected readonly accountMenuOpen = signal(false);
   protected readonly confirmLogoutOpen = signal(false);
   protected readonly snackMessage = signal('');
-  protected readonly theme = signal<ThemePreference>(
-    localStorage.getItem('tf05-theme') === 'dark' ? 'dark' : 'light',
-  );
 
   protected readonly navGroups: readonly NavGroup[] = [
     {
@@ -96,7 +93,6 @@ export class App {
   );
 
   constructor() {
-    this.applyTheme(this.theme());
     this.setPageTitle(this.router.url);
 
     this.router.events
@@ -167,22 +163,13 @@ export class App {
   }
 
   protected toggleTheme(): void {
-    this.theme.update((currentTheme) => {
-      const nextTheme: ThemePreference = currentTheme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('tf05-theme', nextTheme);
-      this.applyTheme(nextTheme);
-      this.showSnack(nextTheme === 'dark' ? 'Dark mode enabled.' : 'Light mode enabled.');
-      return nextTheme;
-    });
+    const nextTheme = this.themeService.toggleTheme();
+    this.showSnack(nextTheme === 'dark' ? 'Dark mode enabled.' : 'Light mode enabled.');
     this.closeAccountMenu();
   }
 
   protected themeLabel(): string {
-    return this.theme() === 'dark' ? 'Use light mode' : 'Use dark mode';
-  }
-
-  private applyTheme(theme: ThemePreference): void {
-    document.documentElement.dataset['theme'] = theme;
+    return this.themeService.themeLabel();
   }
 
   private showSnack(message: string): void {
