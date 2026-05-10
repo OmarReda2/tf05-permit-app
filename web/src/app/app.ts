@@ -41,7 +41,10 @@ export class App {
   protected readonly sidebarCollapsed = signal(localStorage.getItem('tf05-sidebar') === 'collapsed');
   protected readonly accountMenuOpen = signal(false);
   protected readonly confirmLogoutOpen = signal(false);
+  protected readonly snackVisible = signal(false);
   protected readonly snackMessage = signal('');
+  private snackTimer = 0;
+  private snackClearTimer = 0;
 
   protected readonly navGroups: readonly NavGroup[] = [
     {
@@ -173,11 +176,17 @@ export class App {
   }
 
   private showSnack(message: string): void {
+    window.clearTimeout(this.snackTimer);
+    window.clearTimeout(this.snackClearTimer);
     this.snackMessage.set(message);
-    window.setTimeout(() => {
-      if (this.snackMessage() === message) {
-        this.snackMessage.set('');
-      }
+    this.snackVisible.set(true);
+    this.snackTimer = window.setTimeout(() => {
+      this.snackVisible.set(false);
+      this.snackClearTimer = window.setTimeout(() => {
+        if (!this.snackVisible() && this.snackMessage() === message) {
+          this.snackMessage.set('');
+        }
+      }, 180);
     }, 2600);
   }
 

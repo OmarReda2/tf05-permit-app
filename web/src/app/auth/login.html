@@ -1,6 +1,15 @@
 <main class="login-page">
-  <button type="button" class="theme-toggle login-theme-toggle" (click)="toggleTheme()">
-    {{ themeService.themeLabel() }}
+  <button
+    type="button"
+    class="theme-toggle login-theme-toggle"
+    (click)="toggleTheme()"
+    [attr.aria-label]="themeService.themeLabel()"
+    [attr.title]="themeService.themeLabel()"
+  >
+    <span
+      [class]="themeService.theme() === 'dark' ? 'theme-icon theme-icon-moon' : 'theme-icon theme-icon-sun'"
+      aria-hidden="true"
+    ></span>
   </button>
 
   <section class="login-panel" aria-labelledby="login-title">

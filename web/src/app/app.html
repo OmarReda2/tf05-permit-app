@@ -20,14 +20,6 @@
           <p class="brand-kicker">Safety Permit</p>
           <p class="brand-name">TF-05 Permit App</p>
         </div>
-        <button
-          type="button"
-          class="rail-toggle"
-          [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
-          (click)="toggleSidebar()"
-        >
-          <span aria-hidden="true"></span>
-        </button>
       </div>
 
       <nav class="nav-list" aria-label="Product navigation">
@@ -53,6 +45,17 @@
         }
       </nav>
 
+      <div class="sidebar-footer">
+        <button
+          type="button"
+          class="rail-toggle"
+          [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+          [attr.title]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+          (click)="toggleSidebar()"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
     </aside>
 
     <div class="main-column">
@@ -63,8 +66,17 @@
         </div>
 
         <div class="topbar-actions">
-          <button type="button" class="theme-toggle" (click)="toggleTheme()">
-            {{ themeLabel() }}
+          <button
+            type="button"
+            class="theme-toggle"
+            (click)="toggleTheme()"
+            [attr.aria-label]="themeLabel()"
+            [attr.title]="themeLabel()"
+          >
+            <span
+              [class]="themeService.theme() === 'dark' ? 'theme-icon theme-icon-moon' : 'theme-icon theme-icon-sun'"
+              aria-hidden="true"
+            ></span>
           </button>
           @if (userService.profile(); as profile) {
             <div class="account-menu">
@@ -82,16 +94,20 @@
                 </span>
                 <span class="account-chevron" aria-hidden="true"></span>
               </button>
-              @if (accountMenuOpen()) {
-                <div class="account-panel" role="menu" (click)="$event.stopPropagation()">
-                  <p class="account-email">{{ profile.email }}</p>
-                  <a routerLink="/profile" role="menuitem" (click)="closeAccountMenu()">Profile</a>
-                  @for (item of secondaryAccountItems(); track item.path) {
-                    <a [routerLink]="item.path" role="menuitem" (click)="closeAccountMenu()">{{ item.label }}</a>
-                  }
-                  <button type="button" role="menuitem" (click)="requestLogout()">Logout</button>
-                </div>
-              }
+              <div
+                class="account-panel"
+                [class.open]="accountMenuOpen()"
+                [attr.aria-hidden]="!accountMenuOpen()"
+                role="menu"
+                (click)="$event.stopPropagation()"
+              >
+                <p class="account-email">{{ profile.email }}</p>
+                <a routerLink="/profile" role="menuitem" (click)="closeAccountMenu()">Profile</a>
+                @for (item of secondaryAccountItems(); track item.path) {
+                  <a [routerLink]="item.path" role="menuitem" (click)="closeAccountMenu()">{{ item.label }}</a>
+                }
+                <button type="button" role="menuitem" (click)="requestLogout()">Logout</button>
+              </div>
             </div>
           } @else if (authService.user()?.email) {
             <span class="user-email">{{ authService.user()?.email }}</span>
@@ -115,20 +131,22 @@
     </nav>
   </div>
 
-  @if (confirmLogoutOpen()) {
-    <div class="dialog-backdrop" role="presentation" (click)="cancelLogout()">
-      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" (click)="$event.stopPropagation()">
-        <h2 id="logout-title">Sign out?</h2>
-        <p>You will return to the secure login screen.</p>
-        <div class="dialog-actions">
-          <button type="button" class="quiet-button" (click)="cancelLogout()">Cancel</button>
-          <button type="button" class="primary-button" (click)="logout()">Sign out</button>
-        </div>
-      </section>
-    </div>
-  }
+  <div
+    class="dialog-backdrop"
+    [class.open]="confirmLogoutOpen()"
+    [attr.aria-hidden]="!confirmLogoutOpen()"
+    role="presentation"
+    (click)="cancelLogout()"
+  >
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" (click)="$event.stopPropagation()">
+      <h2 id="logout-title">Sign out?</h2>
+      <p>You will return to the secure login screen.</p>
+      <div class="dialog-actions">
+        <button type="button" class="quiet-button" (click)="cancelLogout()">Cancel</button>
+        <button type="button" class="primary-button" (click)="logout()">Sign out</button>
+      </div>
+    </section>
+  </div>
 
-  @if (snackMessage()) {
-    <p class="snackbar" role="status">{{ snackMessage() }}</p>
-  }
+  <p class="snackbar" [class.open]="snackVisible()" [attr.aria-hidden]="!snackVisible()" role="status">{{ snackMessage() }}</p>
 }

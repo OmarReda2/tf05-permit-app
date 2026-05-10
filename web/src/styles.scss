@@ -150,6 +150,36 @@ a {
   color: var(--tf-primary);
 }
 
+.brand-mark {
+  position: relative;
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+}
+
+.brand-mark::before {
+  position: absolute;
+  top: 11px;
+  left: 9px;
+  width: 23px;
+  height: 6px;
+  border-radius: 2px;
+  background: #ffffff;
+  box-shadow: 7px 7px 0 -1px #ffffff;
+  content: '';
+}
+
+.brand-mark::after {
+  position: absolute;
+  right: 8px;
+  bottom: 11px;
+  width: 13px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--tf-accent);
+  content: '';
+}
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -308,6 +338,18 @@ textarea:focus-visible {
   place-items: center;
   padding: 18px;
   background: rgba(32, 33, 36, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease,
+    visibility 150ms ease;
+  visibility: hidden;
+}
+
+.dialog-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .confirm-dialog {
@@ -317,6 +359,16 @@ textarea:focus-visible {
   border-radius: var(--tf-radius-lg);
   background: var(--tf-surface);
   box-shadow: var(--tf-shadow-md);
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.dialog-backdrop.open .confirm-dialog {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .confirm-dialog h2 {
@@ -353,6 +405,20 @@ textarea:focus-visible {
   color: var(--tf-surface);
   box-shadow: var(--tf-shadow-md);
   font-size: var(--tf-font-sm);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    visibility 150ms ease;
+  visibility: hidden;
+}
+
+.snackbar.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
 }
 
 @keyframes tf-progress {
@@ -538,11 +604,28 @@ textarea:focus-visible {
   z-index: 20;
   display: grid;
   min-width: 220px;
+  max-width: calc(100vw - 24px);
   padding: 8px;
   border: 1px solid var(--tf-border);
   border-radius: var(--tf-radius);
   background: var(--tf-surface);
   box-shadow: var(--tf-shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top right;
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    visibility 150ms ease;
+  visibility: hidden;
+}
+
+.account-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  visibility: visible;
 }
 
 .account-email {
@@ -638,21 +721,79 @@ textarea:focus-visible {
 }
 
 .theme-toggle {
-  min-height: 36px;
-  padding: 7px 11px;
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  padding: 0;
   border: 1px solid var(--tf-border);
   border-radius: 999px;
   background: var(--tf-surface);
   color: var(--tf-muted-strong);
   cursor: pointer;
-  font-size: var(--tf-font-sm);
-  font-weight: 600;
 }
 
 .theme-toggle:hover {
   border-color: var(--tf-primary);
   background: var(--tf-primary-soft);
   color: var(--tf-primary);
+}
+
+.theme-icon {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.theme-icon-sun::before {
+  position: absolute;
+  inset: 3px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  content: '';
+}
+
+.theme-icon-sun::after {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow:
+    0 -8px 0 currentColor,
+    0 8px 0 currentColor,
+    8px 0 0 currentColor,
+    -8px 0 0 currentColor,
+    6px 6px 0 currentColor,
+    -6px 6px 0 currentColor,
+    6px -6px 0 currentColor,
+    -6px -6px 0 currentColor;
+  content: '';
+}
+
+.theme-icon-moon::before {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+
+.theme-icon-moon::after {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--tf-surface);
+  content: '';
+  transition: background-color 140ms ease;
 }
 
 .bottom-nav {
@@ -734,7 +875,7 @@ textarea:focus-visible {
 @media (max-width: 760px) {
   .account-panel {
     right: 0;
-    width: min(280px, calc(100vw - 28px));
+    width: min(288px, calc(100vw - 24px));
     min-width: 0;
   }
 
@@ -744,9 +885,10 @@ textarea:focus-visible {
   }
 
   .theme-toggle {
-    min-height: 34px;
-    padding: 7px 9px;
-    font-size: 0.74rem;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    flex-basis: 36px;
   }
 }
 
