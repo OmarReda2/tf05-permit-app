@@ -52,9 +52,16 @@ export class PermitDetails implements OnInit {
     return this.userService.profile()?.role === 'CONSTRUCTION_MANAGER' && permit.status === 'HSE_APPROVED';
   }
 
-  protected printPermit(): void {
+  protected printPermit(permit: Permit): void {
+    const previousTitle = document.title;
+    document.title = permit.permitNumber || 'TF05-Permit';
     this.generatedAt.set(new Date());
-    window.setTimeout(() => window.print());
+    window.setTimeout(() => {
+      window.print();
+      window.setTimeout(() => {
+        document.title = previousTitle;
+      }, 500);
+    });
   }
 
   protected async approveByHse(permitId: string): Promise<void> {
