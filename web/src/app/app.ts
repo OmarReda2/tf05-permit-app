@@ -11,6 +11,7 @@ interface NavItem {
   label: string;
   path: string;
   roles?: readonly UserRole[];
+  showInMobile?: boolean;
 }
 
 @Component({
@@ -31,6 +32,7 @@ export class App {
     { label: 'Permits', path: '/permits' },
     { label: 'New Permit', path: '/permits/new', roles: ['SITE_USER'] },
     { label: 'Approvals', path: '/approvals' },
+    { label: 'Activity Log', path: '/activity-log', showInMobile: false },
     { label: 'Admin', path: '/admin', roles: ['ADMIN'] },
     { label: 'Checklist Items', path: '/admin/checklist-items', roles: ['ADMIN', 'HSE_MANAGER'] },
     { label: 'Profile', path: '/profile' },

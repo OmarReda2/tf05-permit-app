@@ -52,7 +52,7 @@
 
     <nav class="bottom-nav" aria-label="Primary navigation">
       @for (item of navItems; track item.path) {
-        @if (canShowNavItem(item)) {
+        @if (canShowNavItem(item) && item.showInMobile !== false) {
           <a
             class="bottom-nav-link"
             [routerLink]="item.path"

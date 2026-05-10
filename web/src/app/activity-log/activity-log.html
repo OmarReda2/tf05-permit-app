@@ -1,0 +1,67 @@
+<section class="activity-log-page">
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">Activity Log</p>
+      <h1>Activity Log</h1>
+      <p>Latest permit submission and approval events.</p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <section class="state-panel">
+      <p>Loading activity...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel error">
+      <p>{{ errorMessage() }}</p>
+    </section>
+  } @else if (activityItems().length === 0) {
+    <section class="state-panel">
+      <p>No activity found.</p>
+    </section>
+  } @else {
+    <section class="desktop-list" aria-label="Activity log">
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Permit</th>
+            <th>Actor</th>
+            <th>Role</th>
+            <th>Comment</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of activityItems(); track item.event.id) {
+            <tr>
+              <td><span class="event-badge">{{ eventLabel(item.event.action) }}</span></td>
+              <td><a [routerLink]="['/permits', item.event.permitId]">{{ item.permitNumber }}</a></td>
+              <td>{{ item.event.actorName || 'Not recorded' }}</td>
+              <td>{{ item.event.actorRole }}</td>
+              <td>{{ item.event.comment || 'None' }}</td>
+              <td>{{ formatDateTime(item.event.createdAt) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="mobile-list" aria-label="Activity log cards">
+      @for (item of activityItems(); track item.event.id) {
+        <article class="activity-card">
+          <div class="card-heading">
+            <strong>{{ eventLabel(item.event.action) }}</strong>
+            <span>{{ formatDateTime(item.event.createdAt) }}</span>
+          </div>
+          <p>Permit: <a [routerLink]="['/permits', item.event.permitId]">{{ item.permitNumber }}</a></p>
+          <p>Actor: {{ item.event.actorName || 'Not recorded' }}</p>
+          <p>Role: {{ item.event.actorRole }}</p>
+          @if (item.event.comment) {
+            <p>Comment: {{ item.event.comment }}</p>
+          }
+        </article>
+      }
+    </section>
+  }
+</section>

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { ActivityLog } from './activity-log/activity-log';
 import { Admin } from './admin/admin';
 import { ChecklistItems } from './admin/checklist-items';
 import { PermitTypes } from './admin/permit-types';
@@ -52,6 +53,11 @@ export const routes: Routes = [
     data: {
       roles: ['HSE_MANAGER', 'CONSTRUCTION_MANAGER'],
     },
+  },
+  {
+    path: 'activity-log',
+    component: ActivityLog,
+    canActivate: [authGuard, profileStatusGuard],
   },
   {
     path: 'admin/permit-types',
