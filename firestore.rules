@@ -1,0 +1,181 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function permitPath(permitId) {
+      return /databases/$(database)/documents/permits/$(permitId);
+    }
+
+    function hasActiveProfile() {
+      return signedIn()
+        && exists(userPath(request.auth.uid))
+        && get(userPath(request.auth.uid)).data.active == true;
+    }
+
+    function role() {
+      return get(userPath(request.auth.uid)).data.role;
+    }
+
+    function hasRole(expectedRole) {
+      return hasActiveProfile() && role() == expectedRole;
+    }
+
+    function hasAnyRole(roles) {
+      return hasActiveProfile() && role() in roles;
+    }
+
+    function canReadPermitData(permitData) {
+      return hasAnyRole(['ADMIN', 'HSE_MANAGER', 'CONSTRUCTION_MANAGER'])
+        || (hasRole('SITE_USER') && permitData.requestedByUserId == request.auth.uid);
+    }
+
+    function canReadPermit(permitId) {
+      return exists(permitPath(permitId)) && canReadPermitData(get(permitPath(permitId)).data);
+    }
+
+    function hasNonEmptyRejectionReason() {
+      return request.resource.data.rejectionReason is string
+        && request.resource.data.rejectionReason.size() > 0;
+    }
+
+    function isSiteUserPermitCreate() {
+      return hasRole('SITE_USER')
+        && request.resource.data.requestedByUserId == request.auth.uid
+        && request.resource.data.requesterRole == 'SITE_USER'
+        && request.resource.data.status == 'SUBMITTED';
+    }
+
+    function isHsePermitUpdate() {
+      return hasRole('HSE_MANAGER')
+        && resource.data.status == 'SUBMITTED'
+        && request.resource.data.status in ['HSE_APPROVED', 'REJECTED']
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'hseApprovedBy', 'hseApprovedAt', 'rejectionReason', 'updatedAt'])
+        && (
+          (request.resource.data.status == 'HSE_APPROVED'
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rejectionReason']))
+          || (request.resource.data.status == 'REJECTED' && hasNonEmptyRejectionReason())
+        );
+    }
+
+    function isConstructionManagerPermitUpdate() {
+      return hasRole('CONSTRUCTION_MANAGER')
+        && resource.data.status == 'HSE_APPROVED'
+        && request.resource.data.status in ['APPROVED', 'REJECTED']
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'cmApprovedBy', 'cmApprovedAt', 'rejectionReason', 'updatedAt'])
+        && (
+          (request.resource.data.status == 'APPROVED'
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rejectionReason']))
+          || (request.resource.data.status == 'REJECTED' && hasNonEmptyRejectionReason())
+        );
+    }
+
+    function eventHasCurrentActor() {
+      return request.resource.data.actorUserId == request.auth.uid
+        && request.resource.data.actorRole == role();
+    }
+
+    function isPermitSubmittedEvent() {
+      return hasRole('SITE_USER')
+        && eventHasCurrentActor()
+        && request.resource.data.action == 'PERMIT_SUBMITTED'
+        && !exists(permitPath(request.resource.data.permitId))
+        && getAfter(permitPath(request.resource.data.permitId)).data.requestedByUserId == request.auth.uid
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'SUBMITTED';
+    }
+
+    function isHseApprovedEvent() {
+      return hasRole('HSE_MANAGER')
+        && eventHasCurrentActor()
+        && request.resource.data.action == 'HSE_APPROVED'
+        && get(permitPath(request.resource.data.permitId)).data.status == 'SUBMITTED'
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'HSE_APPROVED';
+    }
+
+    function isHseRejectedEvent() {
+      return hasRole('HSE_MANAGER')
+        && eventHasCurrentActor()
+        && request.resource.data.action == 'HSE_REJECTED'
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() > 0
+        && get(permitPath(request.resource.data.permitId)).data.status == 'SUBMITTED'
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'REJECTED';
+    }
+
+    function isConstructionManagerApprovedEvent() {
+      return hasRole('CONSTRUCTION_MANAGER')
+        && eventHasCurrentActor()
+        && request.resource.data.action == 'CM_APPROVED'
+        && get(permitPath(request.resource.data.permitId)).data.status == 'HSE_APPROVED'
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'APPROVED';
+    }
+
+    function isConstructionManagerRejectedEvent() {
+      return hasRole('CONSTRUCTION_MANAGER')
+        && eventHasCurrentActor()
+        && request.resource.data.action == 'CM_REJECTED'
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() > 0
+        && get(permitPath(request.resource.data.permitId)).data.status == 'HSE_APPROVED'
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'REJECTED';
+    }
+
+    match /users/{userId} {
+      allow get: if signedIn() && userId == request.auth.uid;
+      allow read: if hasRole('ADMIN');
+      allow create, update, delete: if false;
+    }
+
+    match /permitTypes/{permitTypeId} {
+      allow read: if hasActiveProfile();
+      allow create, update: if hasRole('ADMIN');
+      allow delete: if false;
+    }
+
+    match /checklistItems/{checklistItemId} {
+      allow read: if hasActiveProfile();
+      allow create, update: if hasAnyRole(['ADMIN', 'HSE_MANAGER']);
+      allow delete: if false;
+    }
+
+    match /permits/{permitId} {
+      allow read: if hasActiveProfile() && canReadPermitData(resource.data);
+      allow create: if isSiteUserPermitCreate();
+      allow update: if isHsePermitUpdate() || isConstructionManagerPermitUpdate();
+      allow delete: if false;
+    }
+
+    match /permitChecklistResponses/{responseId} {
+      allow read: if hasActiveProfile() && canReadPermit(resource.data.permitId);
+      allow create: if hasRole('SITE_USER')
+        && request.resource.data.permitId is string
+        && !exists(permitPath(request.resource.data.permitId))
+        && getAfter(permitPath(request.resource.data.permitId)).data.requestedByUserId == request.auth.uid
+        && getAfter(permitPath(request.resource.data.permitId)).data.status == 'SUBMITTED';
+      allow update, delete: if false;
+    }
+
+    match /permitEvents/{eventId} {
+      allow read: if hasActiveProfile() && canReadPermit(resource.data.permitId);
+      allow create: if isPermitSubmittedEvent()
+        || isHseApprovedEvent()
+        || isHseRejectedEvent()
+        || isConstructionManagerApprovedEvent()
+        || isConstructionManagerRejectedEvent();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
