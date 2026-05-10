@@ -121,6 +121,70 @@ dd {
   color: #b42318;
 }
 
+.hse-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.action-grid {
+  display: grid;
+  gap: 10px;
+  max-width: 520px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: #344054;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+button,
+textarea {
+  border: 1px solid #b8c2d0;
+  border-radius: 8px;
+  font: inherit;
+}
+
+button {
+  min-height: 40px;
+  padding: 9px 12px;
+  background: #194f46;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+button.danger {
+  background: #b42318;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+textarea {
+  width: 100%;
+  padding: 9px 10px;
+  resize: vertical;
+}
+
+.success-message,
+.error-message {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.success-message {
+  color: #194f46;
+}
+
+.error-message {
+  color: #b42318;
+}
+
 @media (max-width: 760px) {
   .page-heading,
   .details-section,

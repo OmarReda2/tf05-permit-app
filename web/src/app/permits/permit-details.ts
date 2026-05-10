@@ -22,7 +22,10 @@ export class PermitDetails implements OnInit {
   protected readonly checklistResponses = signal<PermitChecklistResponse[]>([]);
   protected readonly events = signal<PermitEvent[]>([]);
   protected readonly loading = signal(false);
+  protected readonly actionSaving = signal(false);
   protected readonly errorMessage = signal('');
+  protected readonly actionErrorMessage = signal('');
+  protected readonly actionSuccessMessage = signal('');
 
   protected readonly statusLabel = statusLabel;
   protected readonly expiryState = expiryState;
@@ -37,6 +40,62 @@ export class PermitDetails implements OnInit {
     }
 
     await this.loadPermit(permitId);
+  }
+
+  protected canHseAct(permit: Permit): boolean {
+    return this.userService.profile()?.role === 'HSE_MANAGER' && permit.status === 'SUBMITTED';
+  }
+
+  protected async approveByHse(permitId: string): Promise<void> {
+    const profile = this.userService.profile();
+
+    if (!profile) {
+      this.actionErrorMessage.set('User profile is not loaded.');
+      return;
+    }
+
+    this.actionSaving.set(true);
+    this.actionErrorMessage.set('');
+    this.actionSuccessMessage.set('');
+
+    try {
+      await this.permitService.approveByHse(permitId, profile);
+      this.actionSuccessMessage.set('Permit approved by HSE.');
+      await this.loadPermit(permitId);
+    } catch (error) {
+      this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be approved.');
+    } finally {
+      this.actionSaving.set(false);
+    }
+  }
+
+  protected async rejectByHse(permitId: string, reason: string): Promise<void> {
+    const profile = this.userService.profile();
+    const trimmedReason = reason.trim();
+
+    if (!profile) {
+      this.actionErrorMessage.set('User profile is not loaded.');
+      return;
+    }
+
+    if (!trimmedReason) {
+      this.actionErrorMessage.set('Rejection reason is required.');
+      return;
+    }
+
+    this.actionSaving.set(true);
+    this.actionErrorMessage.set('');
+    this.actionSuccessMessage.set('');
+
+    try {
+      await this.permitService.rejectByHse(permitId, trimmedReason, profile);
+      this.actionSuccessMessage.set('Permit rejected by HSE.');
+      await this.loadPermit(permitId);
+    } catch (error) {
+      this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be rejected.');
+    } finally {
+      this.actionSaving.set(false);
+    }
   }
 
   private async loadPermit(permitId: string): Promise<void> {

@@ -1,0 +1,125 @@
+<section class="approvals-page">
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">Approvals</p>
+      <h1>Approvals</h1>
+    </div>
+  </section>
+
+  @if (!isHseManager()) {
+    <section class="state-panel">
+      <h2>Construction Manager approvals are not part of this slice.</h2>
+      <p>HSE approval is available now. Construction Manager approval will be added in a later slice.</p>
+    </section>
+  } @else {
+    <section class="queue-heading">
+      <h2>Pending HSE Approvals</h2>
+      <p>Submitted permits waiting for HSE review.</p>
+    </section>
+
+    @if (successMessage()) {
+      <section class="state-panel success">
+        <p>{{ successMessage() }}</p>
+      </section>
+    }
+    @if (actionErrorMessage()) {
+      <section class="state-panel error">
+        <p>{{ actionErrorMessage() }}</p>
+      </section>
+    }
+
+    @if (loading()) {
+      <section class="state-panel">
+        <p>Loading submitted permits...</p>
+      </section>
+    } @else if (loadErrorMessage()) {
+      <section class="state-panel error">
+        <p>{{ loadErrorMessage() }}</p>
+      </section>
+    } @else if (permits().length === 0) {
+      <section class="state-panel">
+        <p>No submitted permits are waiting for HSE approval.</p>
+      </section>
+    } @else {
+      <section class="desktop-list" aria-label="Pending HSE approvals">
+        <table>
+          <thead>
+            <tr>
+              <th>Permit</th>
+              <th>Type</th>
+              <th>Location</th>
+              <th>Requester</th>
+              <th>Risk</th>
+              <th>Start</th>
+              <th>Expiry</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (permit of permits(); track permit.id) {
+              <tr>
+                <td>{{ permit.permitNumber }}</td>
+                <td>{{ permit.permitTypeNameSnapshot }}</td>
+                <td>{{ permit.workLocation }}</td>
+                <td>{{ permit.requestedByName }}</td>
+                <td>{{ permit.riskLevel }}</td>
+                <td>{{ formatDateTime(permit.startTime) }}</td>
+                <td>{{ formatDateTime(permit.expiryTime) }}</td>
+                <td>
+                  <div class="actions">
+                    <a [routerLink]="['/permits', permit.id]">View</a>
+                    <button type="button" [disabled]="processingPermitId() === permit.id" (click)="approvePermit(permit.id)">
+                      Approve
+                    </button>
+                    <textarea #desktopReason rows="2" placeholder="Rejection reason"></textarea>
+                    <button
+                      class="danger"
+                      type="button"
+                      [disabled]="processingPermitId() === permit.id"
+                      (click)="rejectPermit(permit.id, desktopReason.value)"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      <section class="mobile-list" aria-label="Pending HSE approval cards">
+        @for (permit of permits(); track permit.id) {
+          <article class="permit-card">
+            <div class="card-heading">
+              <strong>{{ permit.permitNumber }}</strong>
+              <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+            </div>
+            <p>{{ permit.permitTypeNameSnapshot }}</p>
+            <p>Location: {{ permit.workLocation }}</p>
+            <p>Requester: {{ permit.requestedByName }}</p>
+            <p>Risk: {{ permit.riskLevel }}</p>
+            <p>Start: {{ formatDateTime(permit.startTime) }}</p>
+            <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
+            <p>Expiry state: {{ expiryState(permit) }}</p>
+            <div class="actions">
+              <a [routerLink]="['/permits', permit.id]">View details</a>
+              <button type="button" [disabled]="processingPermitId() === permit.id" (click)="approvePermit(permit.id)">
+                Approve
+              </button>
+              <textarea #mobileReason rows="3" placeholder="Rejection reason"></textarea>
+              <button
+                class="danger"
+                type="button"
+                [disabled]="processingPermitId() === permit.id"
+                (click)="rejectPermit(permit.id, mobileReason.value)"
+              >
+                Reject
+              </button>
+            </div>
+          </article>
+        }
+      </section>
+    }
+  }
+</section>

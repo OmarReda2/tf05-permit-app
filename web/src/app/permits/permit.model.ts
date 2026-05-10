@@ -2,7 +2,7 @@ import { type RiskLevel } from '../admin/permit-type.model';
 import { type UserRole } from '../auth/user-profile.model';
 
 export type PermitStatus = 'SUBMITTED' | 'HSE_APPROVED' | 'APPROVED' | 'REJECTED' | 'EXPIRED' | 'CLOSED';
-export type PermitEventAction = 'PERMIT_SUBMITTED';
+export type PermitEventAction = 'PERMIT_SUBMITTED' | 'HSE_APPROVED' | 'HSE_REJECTED';
 
 export interface Permit {
   id: string;
@@ -23,6 +23,11 @@ export interface Permit {
   durationHours: number;
   expiryTime: Date | null;
   status: PermitStatus;
+  hseApprovedBy: string | null;
+  hseApprovedAt: Date | null;
+  cmApprovedBy: string | null;
+  cmApprovedAt: Date | null;
+  rejectionReason: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 }

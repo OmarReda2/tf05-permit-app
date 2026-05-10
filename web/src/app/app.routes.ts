@@ -4,6 +4,7 @@ import { Routes } from '@angular/router';
 import { Admin } from './admin/admin';
 import { ChecklistItems } from './admin/checklist-items';
 import { PermitTypes } from './admin/permit-types';
+import { HseApprovals } from './approvals/hse-approvals';
 import { authGuard, loginGuard } from './auth/auth.guard';
 import { Login } from './auth/login';
 import { NotAuthorized } from './auth/not-authorized';
@@ -106,11 +107,9 @@ export const routes: Routes = [
   },
   {
     path: 'approvals',
-    component: PlaceholderPage,
+    component: HseApprovals,
     canActivate: [authGuard, profileStatusGuard, roleGuard],
     data: {
-      title: 'Approvals',
-      description: 'A future queue for HSE and Construction Manager reviews.',
       roles: ['HSE_MANAGER', 'CONSTRUCTION_MANAGER'],
     },
   },

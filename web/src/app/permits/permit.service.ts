@@ -6,12 +6,14 @@ import {
   getDocs,
   getFirestore,
   query,
+  runTransaction,
   serverTimestamp,
   where,
   writeBatch,
 } from 'firebase/firestore';
 
 import { firebaseApp } from '../auth/firebase';
+import { type UserProfile } from '../auth/user-profile.model';
 import {
   type CreatePermitInput,
   type Permit,
@@ -101,6 +103,14 @@ export class PermitService {
       .sort((first, second) => this.dateValue(second.createdAt) - this.dateValue(first.createdAt));
   }
 
+  async getSubmittedPermits(): Promise<Permit[]> {
+    const snapshot = await getDocs(query(collection(this.firestore, 'permits'), where('status', '==', 'SUBMITTED')));
+
+    return snapshot.docs
+      .map((permitDoc) => this.toPermit(permitDoc.id, permitDoc.data()))
+      .sort((first, second) => this.dateValue(second.createdAt) - this.dateValue(first.createdAt));
+  }
+
   async getPermitById(id: string): Promise<Permit | null> {
     const snapshot = await getDoc(doc(this.firestore, 'permits', id));
 
@@ -155,6 +165,69 @@ export class PermitService {
       .sort((first, second) => this.dateValue(first.createdAt) - this.dateValue(second.createdAt));
   }
 
+  async approveByHse(permitId: string, actor: UserProfile): Promise<void> {
+    if (actor.role !== 'HSE_MANAGER') {
+      throw new Error('Only HSE managers can approve submitted permits.');
+    }
+
+    await this.saveHseDecision(permitId, actor, 'HSE_APPROVED');
+  }
+
+  async rejectByHse(permitId: string, reason: string, actor: UserProfile): Promise<void> {
+    const trimmedReason = reason.trim();
+
+    if (actor.role !== 'HSE_MANAGER') {
+      throw new Error('Only HSE managers can reject submitted permits.');
+    }
+
+    if (!trimmedReason) {
+      throw new Error('Rejection reason is required.');
+    }
+
+    await this.saveHseDecision(permitId, actor, 'HSE_REJECTED', trimmedReason);
+  }
+
+  private async saveHseDecision(
+    permitId: string,
+    actor: UserProfile,
+    action: 'HSE_APPROVED' | 'HSE_REJECTED',
+    rejectionReason = '',
+  ): Promise<void> {
+    const permitRef = doc(this.firestore, 'permits', permitId);
+    const eventRef = doc(collection(this.firestore, 'permitEvents'));
+    const nextStatus: PermitStatus = action === 'HSE_APPROVED' ? 'HSE_APPROVED' : 'REJECTED';
+
+    await runTransaction(this.firestore, async (transaction) => {
+      const permitSnapshot = await transaction.get(permitRef);
+
+      if (!permitSnapshot.exists()) {
+        throw new Error('Permit was not found.');
+      }
+
+      if (permitSnapshot.data()['status'] !== 'SUBMITTED') {
+        throw new Error('Only submitted permits can be reviewed by HSE.');
+      }
+
+      transaction.update(permitRef, {
+        status: nextStatus,
+        hseApprovedBy: actor.displayName,
+        hseApprovedAt: serverTimestamp(),
+        ...(action === 'HSE_REJECTED' ? { rejectionReason } : {}),
+        updatedAt: serverTimestamp(),
+      });
+
+      transaction.set(eventRef, {
+        permitId,
+        action,
+        actorUserId: actor.uid,
+        actorName: actor.displayName,
+        actorRole: 'HSE_MANAGER',
+        comment: action === 'HSE_REJECTED' ? rejectionReason : 'Permit approved by HSE.',
+        createdAt: serverTimestamp(),
+      });
+    });
+  }
+
   private toPermit(id: string, data: Record<string, unknown>): Permit {
     return {
       id,
@@ -179,6 +252,11 @@ export class PermitService {
       durationHours: typeof data['durationHours'] === 'number' ? data['durationHours'] : 0,
       expiryTime: this.toDate(data['expiryTime']),
       status: this.toPermitStatus(data['status']),
+      hseApprovedBy: typeof data['hseApprovedBy'] === 'string' ? data['hseApprovedBy'] : null,
+      hseApprovedAt: this.toDate(data['hseApprovedAt']),
+      cmApprovedBy: typeof data['cmApprovedBy'] === 'string' ? data['cmApprovedBy'] : null,
+      cmApprovedAt: this.toDate(data['cmApprovedAt']),
+      rejectionReason: typeof data['rejectionReason'] === 'string' ? data['rejectionReason'] : null,
       createdAt: this.toDate(data['createdAt']),
       updatedAt: this.toDate(data['updatedAt']),
     };
@@ -200,7 +278,11 @@ export class PermitService {
   }
 
   private toPermitEventAction(value: unknown): PermitEventAction {
-    return value === 'PERMIT_SUBMITTED' ? value : 'PERMIT_SUBMITTED';
+    if (value === 'PERMIT_SUBMITTED' || value === 'HSE_APPROVED' || value === 'HSE_REJECTED') {
+      return value;
+    }
+
+    return 'PERMIT_SUBMITTED';
   }
 
   private toDate(value: unknown): Date | null {

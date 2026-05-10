@@ -33,8 +33,41 @@
         <div><dt>Expiry time</dt><dd>{{ formatDateTime(permit.expiryTime) }}</dd></div>
         <div><dt>Expiry state</dt><dd>{{ expiryState(permit) }}</dd></div>
         <div><dt>Status</dt><dd>{{ statusLabel(permit.status) }}</dd></div>
+        @if (permit.hseApprovedBy) {
+          <div><dt>HSE reviewed by</dt><dd>{{ permit.hseApprovedBy }}</dd></div>
+        }
+        @if (permit.hseApprovedAt) {
+          <div><dt>HSE reviewed at</dt><dd>{{ formatDateTime(permit.hseApprovedAt) }}</dd></div>
+        }
+        @if (permit.rejectionReason) {
+          <div><dt>Rejection reason</dt><dd>{{ permit.rejectionReason }}</dd></div>
+        }
       </dl>
     </section>
+
+    @if (canHseAct(permit) || actionSuccessMessage() || actionErrorMessage()) {
+      <section class="details-section hse-actions">
+        <h2>HSE Review</h2>
+        @if (actionSuccessMessage()) {
+          <p class="success-message">{{ actionSuccessMessage() }}</p>
+        }
+        @if (actionErrorMessage()) {
+          <p class="error-message">{{ actionErrorMessage() }}</p>
+        }
+        @if (canHseAct(permit)) {
+          <div class="action-grid">
+            <button type="button" [disabled]="actionSaving()" (click)="approveByHse(permit.id)">Approve</button>
+            <label>
+              Rejection reason
+              <textarea #rejectionReason rows="3" placeholder="Required when rejecting"></textarea>
+            </label>
+            <button class="danger" type="button" [disabled]="actionSaving()" (click)="rejectByHse(permit.id, rejectionReason.value)">
+              Reject
+            </button>
+          </div>
+        }
+      </section>
+    }
 
     <section class="details-section">
       <h2>Work details</h2>
