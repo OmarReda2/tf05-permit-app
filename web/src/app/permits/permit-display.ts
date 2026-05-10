@@ -26,6 +26,23 @@ export function statusLabel(status: PermitStatus): string {
   }
 }
 
+export function statusClass(status: PermitStatus): string {
+  switch (status) {
+    case 'SUBMITTED':
+      return 'status-pending';
+    case 'HSE_APPROVED':
+      return 'status-info';
+    case 'APPROVED':
+      return 'status-approved';
+    case 'REJECTED':
+      return 'status-rejected';
+    case 'EXPIRED':
+      return 'status-expired';
+    case 'CLOSED':
+      return 'status-closed';
+  }
+}
+
 export function expiryStateKey(permit: Permit): PermitExpiryState {
   if (permit.status === 'SUBMITTED') {
     return 'AWAITING_HSE_APPROVAL';
@@ -76,6 +93,24 @@ export function expiryState(permit: Permit): string {
       return 'Not Applicable';
     case 'CLOSED':
       return 'Closed';
+  }
+}
+
+export function expiryStateClass(permit: Permit): string {
+  switch (expiryStateKey(permit)) {
+    case 'ACTIVE':
+      return 'expiry-active';
+    case 'EXPIRING_SOON':
+      return 'expiry-warning';
+    case 'EXPIRED':
+      return 'expiry-expired';
+    case 'AWAITING_HSE_APPROVAL':
+    case 'AWAITING_FINAL_APPROVAL':
+      return 'expiry-pending';
+    case 'NOT_APPLICABLE':
+      return 'expiry-muted';
+    case 'CLOSED':
+      return 'expiry-closed';
   }
 }
 

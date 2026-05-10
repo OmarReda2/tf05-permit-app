@@ -2,7 +2,15 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 
 import { UserService } from '../auth/user.service';
-import { expiryState, expiryStateKey, formatDateTime, type PermitExpiryState, statusLabel } from './permit-display';
+import {
+  expiryState,
+  expiryStateClass,
+  expiryStateKey,
+  formatDateTime,
+  type PermitExpiryState,
+  statusClass,
+  statusLabel,
+} from './permit-display';
 import { type Permit, type PermitStatus } from './permit.model';
 import { PermitService } from './permit.service';
 
@@ -26,7 +34,9 @@ export class PermitList implements OnInit {
   protected readonly expiryStateFilter = signal<ExpiryStateFilter>('ALL');
 
   protected readonly statusLabel = statusLabel;
+  protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
+  protected readonly expiryStateClass = expiryStateClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {

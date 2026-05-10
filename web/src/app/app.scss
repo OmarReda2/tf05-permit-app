@@ -7,25 +7,32 @@
   display: flex;
   min-height: 100dvh;
   overflow-x: hidden;
-  background: #f4f6f8;
-  color: #172033;
+  background:
+    linear-gradient(180deg, rgba(24, 59, 86, 0.08), transparent 22rem),
+    var(--tf-bg);
+  color: var(--tf-text);
 }
 
 .sidebar {
   display: flex;
   flex: 0 0 248px;
   flex-direction: column;
-  gap: 28px;
+  gap: 26px;
   min-height: 100dvh;
-  padding: 24px 18px;
-  border-right: 1px solid #d8dee8;
-  background: #ffffff;
+  padding: 22px 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(245, 158, 11, 0.13), transparent 16rem),
+    var(--tf-panel);
+  box-shadow: 18px 0 40px rgba(17, 24, 39, 0.12);
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 10px 8px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .brand-mark {
@@ -34,16 +41,18 @@
   width: 44px;
   height: 44px;
   place-items: center;
-  border-radius: 8px;
-  background: #194f46;
-  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--tf-radius);
+  background: linear-gradient(135deg, var(--tf-accent), #f97316);
+  color: #111827;
   font-weight: 700;
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.26);
 }
 
 .brand-kicker,
 .topbar-kicker {
   margin: 0;
-  color: #5d6b7e;
+  color: rgba(255, 255, 255, 0.64);
   font-size: 0.78rem;
   line-height: 1.2;
 }
@@ -51,7 +60,7 @@
 .brand-name,
 .topbar-title {
   margin: 3px 0 0;
-  color: #172033;
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.25;
@@ -60,26 +69,30 @@
 .nav-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .nav-link,
 .bottom-nav-link {
-  color: #344054;
+  color: rgba(255, 255, 255, 0.74);
   text-decoration: none;
 }
 
 .nav-link {
-  padding: 11px 12px;
-  border-radius: 8px;
+  position: relative;
+  padding: 11px 12px 11px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--tf-radius);
   font-weight: 600;
 }
 
 .nav-link:hover,
 .nav-link:focus-visible,
 .nav-link.active {
-  background: #e8f1ef;
-  color: #194f46;
+  border-color: rgba(245, 158, 11, 0.24);
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  box-shadow: inset 3px 0 0 var(--tf-accent);
 }
 
 .main-column {
@@ -96,8 +109,18 @@
   gap: 16px;
   min-height: 72px;
   padding: 16px 28px;
-  border-bottom: 1px solid #d8dee8;
-  background: #ffffff;
+  border-bottom: 1px solid var(--tf-border);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--tf-shadow-sm);
+}
+
+.topbar-kicker {
+  color: var(--tf-muted);
+}
+
+.topbar-title {
+  color: var(--tf-text);
 }
 
 .topbar-actions {
@@ -109,7 +132,7 @@
 
 .user-email {
   min-width: 0;
-  color: #5d6b7e;
+  color: var(--tf-muted);
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -117,10 +140,11 @@
 }
 
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: #e8f1ef;
-  color: #194f46;
+  padding: 5px 9px;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: 999px;
+  background: var(--tf-info-soft);
+  color: var(--tf-info);
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
@@ -129,10 +153,10 @@
 .logout-button {
   min-height: 38px;
   padding: 8px 12px;
-  border: 1px solid #b8c2d0;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #344054;
+  border: 1px solid var(--tf-border-strong);
+  border-radius: var(--tf-radius);
+  background: var(--tf-surface);
+  color: var(--tf-primary);
   cursor: pointer;
   font: inherit;
   font-weight: 700;
@@ -140,14 +164,15 @@
 
 .logout-button:hover,
 .logout-button:focus-visible {
-  border-color: #194f46;
-  color: #194f46;
+  border-color: var(--tf-accent);
+  color: var(--tf-primary-strong);
+  box-shadow: var(--tf-shadow-sm);
 }
 
 .page-content {
   flex: 1;
   width: 100%;
-  max-width: 1120px;
+  max-width: 1200px;
   padding: 32px 28px;
 }
 
@@ -195,14 +220,16 @@
     z-index: 10;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    border-top: 1px solid #d8dee8;
-    background: #ffffff;
+    border-top: 1px solid var(--tf-border);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -12px 28px rgba(17, 24, 39, 0.10);
+    backdrop-filter: blur(12px);
   }
 
   .bottom-nav-link {
     min-width: 0;
     padding: 12px 4px 14px;
-    color: #5d6b7e;
+    color: var(--tf-muted);
     font-size: 0.72rem;
     font-weight: 700;
     line-height: 1.15;
@@ -211,8 +238,8 @@
   }
 
   .bottom-nav-link.active {
-    color: #194f46;
-    background: #e8f1ef;
+    color: var(--tf-primary);
+    background: var(--tf-accent-soft);
   }
 }
 

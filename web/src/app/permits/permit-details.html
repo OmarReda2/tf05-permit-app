@@ -14,6 +14,7 @@
       <div>
         <p class="eyebrow">Permit details</p>
         <h1>{{ permit.permitNumber }}</h1>
+        <p class="page-subtitle no-print">Permit dossier, checklist record, approvals, and activity trail.</p>
         <div class="print-header">
           <p>TF-05 Safety Permit App</p>
           <p>TF-05-C1 - Sheikh Zayed Road Storm Water Drainage</p>
@@ -21,7 +22,7 @@
         </div>
       </div>
       <div class="heading-actions">
-        <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+        <span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span>
         <button class="print-button no-print" type="button" (click)="printPermit(permit)">Print / Save PDF</button>
       </div>
     </section>
@@ -39,8 +40,8 @@
         <div><dt>Duration</dt><dd>{{ permit.durationHours }} hours</dd></div>
         <div><dt>Start time</dt><dd>{{ formatDateTime(permit.startTime) }}</dd></div>
         <div><dt>Expiry time</dt><dd>{{ formatDateTime(permit.expiryTime) }}</dd></div>
-        <div><dt>Expiry state</dt><dd>{{ expiryState(permit) }}</dd></div>
-        <div><dt>Status</dt><dd>{{ statusLabel(permit.status) }}</dd></div>
+        <div><dt>Expiry state</dt><dd><span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></dd></div>
+        <div><dt>Status</dt><dd><span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span></dd></div>
       </dl>
     </section>
 

@@ -2,7 +2,13 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 
 import { UserService } from '../auth/user.service';
-import { expiryState, formatDateTime, statusLabel } from '../permits/permit-display';
+import {
+  expiryState,
+  expiryStateClass,
+  formatDateTime,
+  statusClass,
+  statusLabel,
+} from '../permits/permit-display';
 import { type Permit } from '../permits/permit.model';
 import { PermitService } from '../permits/permit.service';
 
@@ -25,7 +31,9 @@ export class HseApprovals implements OnInit {
   protected readonly successMessage = signal('');
 
   protected readonly statusLabel = statusLabel;
+  protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
+  protected readonly expiryStateClass = expiryStateClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {

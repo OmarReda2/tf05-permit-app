@@ -3,6 +3,7 @@
     <div>
       <p class="eyebrow">Permits</p>
       <h1>Permits</h1>
+      <p class="page-subtitle">Track workflow status, expiry state, and permit records.</p>
     </div>
     <div class="filters">
       <label>
@@ -71,10 +72,10 @@
               <td>{{ permit.permitTypeNameSnapshot }}</td>
               <td>{{ permit.workLocation }}</td>
               <td>{{ permit.requestedByName }}</td>
-              <td><span class="status-badge">{{ statusLabel(permit.status) }}</span></td>
+              <td><span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span></td>
               <td>{{ formatDateTime(permit.startTime) }}</td>
               <td>{{ formatDateTime(permit.expiryTime) }}</td>
-              <td>{{ expiryState(permit) }}</td>
+              <td><span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></td>
               <td><a [routerLink]="['/permits', permit.id]">View</a></td>
             </tr>
           }
@@ -87,14 +88,14 @@
         <article class="permit-card">
           <div>
             <strong>{{ permit.permitNumber }}</strong>
-            <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+            <span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span>
           </div>
           <p>{{ permit.permitTypeNameSnapshot }}</p>
           <p>{{ permit.workLocation }}</p>
           <p>Requester: {{ permit.requestedByName }}</p>
           <p>Start: {{ formatDateTime(permit.startTime) }}</p>
           <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
-          <p>Expiry state: {{ expiryState(permit) }}</p>
+          <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>
           <a [routerLink]="['/permits', permit.id]">View details</a>
         </article>
       }

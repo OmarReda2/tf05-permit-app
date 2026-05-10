@@ -44,11 +44,11 @@
           <article class="permit-card">
             <div class="card-heading">
               <strong>{{ permit.permitNumber }}</strong>
-              <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+              <span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span>
             </div>
             <p>{{ permit.permitTypeNameSnapshot }}</p>
             <p>Location: {{ permit.workLocation }}</p>
-            <p>Expiry state: {{ expiryState(permit) }}</p>
+            <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>
             <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
             <a [routerLink]="['/permits', permit.id]">View details</a>
           </article>

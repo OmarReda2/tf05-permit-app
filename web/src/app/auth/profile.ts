@@ -35,14 +35,15 @@ import { UserService } from './user.service';
     .profile-page {
       max-width: 720px;
       padding: 28px;
-      border: 1px solid #d8dee8;
-      border-radius: 8px;
-      background: #ffffff;
+      border: 1px solid var(--tf-border);
+      border-radius: var(--tf-radius);
+      background: var(--tf-surface);
+      box-shadow: var(--tf-shadow-sm);
     }
 
     .eyebrow {
       margin: 0 0 10px;
-      color: #5d6b7e;
+      color: var(--tf-accent);
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -50,7 +51,7 @@ import { UserService } from './user.service';
 
     h1 {
       margin: 0 0 22px;
-      color: #172033;
+      color: var(--tf-text);
       font-size: 2rem;
       line-height: 1.2;
     }
@@ -67,7 +68,7 @@ import { UserService } from './user.service';
     }
 
     dt {
-      color: #5d6b7e;
+      color: var(--tf-muted);
       font-size: 0.82rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -75,7 +76,7 @@ import { UserService } from './user.service';
 
     dd {
       margin: 0;
-      color: #172033;
+      color: var(--tf-text);
       font-size: 1rem;
       overflow-wrap: anywhere;
     }

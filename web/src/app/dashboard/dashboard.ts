@@ -3,7 +3,13 @@ import { RouterLink } from '@angular/router';
 
 import { UserService } from '../auth/user.service';
 import { type UserRole } from '../auth/user-profile.model';
-import { expiryState, formatDateTime, statusLabel } from '../permits/permit-display';
+import {
+  expiryState,
+  expiryStateClass,
+  formatDateTime,
+  statusClass,
+  statusLabel,
+} from '../permits/permit-display';
 import { type Permit } from '../permits/permit.model';
 import { PermitService } from '../permits/permit.service';
 
@@ -43,7 +49,9 @@ export class Dashboard implements OnInit {
   protected readonly recentPermits = computed(() => this.permits().slice(0, 5));
 
   protected readonly statusLabel = statusLabel;
+  protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
+  protected readonly expiryStateClass = expiryStateClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {
