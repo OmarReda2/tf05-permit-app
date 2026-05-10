@@ -11,6 +11,8 @@ import { Profile } from './auth/profile';
 import { ProfileNotConfigured } from './auth/profile-not-configured';
 import { profileStatusGuard } from './auth/profile-status.guard';
 import { roleGuard } from './auth/role.guard';
+import { PermitDetails } from './permits/permit-details';
+import { PermitList } from './permits/permit-list';
 import { NewPermit } from './permits/new-permit';
 
 @Component({
@@ -94,12 +96,13 @@ export const routes: Routes = [
   },
   {
     path: 'permits',
-    component: PlaceholderPage,
+    component: PermitList,
     canActivate: [authGuard, profileStatusGuard],
-    data: {
-      title: 'Permits',
-      description: 'A future home for permit lists and permit detail navigation.',
-    },
+  },
+  {
+    path: 'permits/:id',
+    component: PermitDetails,
+    canActivate: [authGuard, profileStatusGuard],
   },
   {
     path: 'approvals',

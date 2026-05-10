@@ -1,8 +1,25 @@
 import { Injectable } from '@angular/core';
-import { collection, doc, getFirestore, serverTimestamp, writeBatch } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 
 import { firebaseApp } from '../auth/firebase';
-import { type CreatePermitInput } from './permit.model';
+import {
+  type CreatePermitInput,
+  type Permit,
+  type PermitChecklistResponse,
+  type PermitEvent,
+  type PermitEventAction,
+  type PermitStatus,
+} from './permit.model';
 
 @Injectable({
   providedIn: 'root',
@@ -70,5 +87,141 @@ export class PermitService {
     await batch.commit();
 
     return permitRef.id;
+  }
+
+  async getPermitsForCurrentUser(userId: string, role: string): Promise<Permit[]> {
+    const permitsQuery =
+      role === 'SITE_USER'
+        ? query(collection(this.firestore, 'permits'), where('requestedByUserId', '==', userId))
+        : query(collection(this.firestore, 'permits'));
+    const snapshot = await getDocs(permitsQuery);
+
+    return snapshot.docs
+      .map((permitDoc) => this.toPermit(permitDoc.id, permitDoc.data()))
+      .sort((first, second) => this.dateValue(second.createdAt) - this.dateValue(first.createdAt));
+  }
+
+  async getPermitById(id: string): Promise<Permit | null> {
+    const snapshot = await getDoc(doc(this.firestore, 'permits', id));
+
+    if (!snapshot.exists()) {
+      return null;
+    }
+
+    return this.toPermit(snapshot.id, snapshot.data());
+  }
+
+  async getChecklistResponsesForPermit(permitId: string): Promise<PermitChecklistResponse[]> {
+    const snapshot = await getDocs(
+      query(collection(this.firestore, 'permitChecklistResponses'), where('permitId', '==', permitId)),
+    );
+
+    return snapshot.docs
+      .map((responseDoc) => {
+        const data = responseDoc.data();
+
+        return {
+          id: responseDoc.id,
+          permitId: typeof data['permitId'] === 'string' ? data['permitId'] : '',
+          checklistItemId: typeof data['checklistItemId'] === 'string' ? data['checklistItemId'] : '',
+          itemTextSnapshot: typeof data['itemTextSnapshot'] === 'string' ? data['itemTextSnapshot'] : '',
+          required: data['required'] === true,
+          checked: data['checked'] === true,
+          createdAt: this.toDate(data['createdAt']),
+          updatedAt: this.toDate(data['updatedAt']),
+        };
+      })
+      .sort((first, second) => this.dateValue(first.createdAt) - this.dateValue(second.createdAt));
+  }
+
+  async getEventsForPermit(permitId: string): Promise<PermitEvent[]> {
+    const snapshot = await getDocs(query(collection(this.firestore, 'permitEvents'), where('permitId', '==', permitId)));
+
+    return snapshot.docs
+      .map((eventDoc) => {
+        const data = eventDoc.data();
+
+        return {
+          id: eventDoc.id,
+          permitId: typeof data['permitId'] === 'string' ? data['permitId'] : '',
+          action: this.toPermitEventAction(data['action']),
+          actorUserId: typeof data['actorUserId'] === 'string' ? data['actorUserId'] : '',
+          actorName: typeof data['actorName'] === 'string' ? data['actorName'] : '',
+          actorRole: typeof data['actorRole'] === 'string' ? (data['actorRole'] as PermitEvent['actorRole']) : 'SITE_USER',
+          comment: typeof data['comment'] === 'string' ? data['comment'] : '',
+          createdAt: this.toDate(data['createdAt']),
+        };
+      })
+      .sort((first, second) => this.dateValue(first.createdAt) - this.dateValue(second.createdAt));
+  }
+
+  private toPermit(id: string, data: Record<string, unknown>): Permit {
+    return {
+      id,
+      permitNumber: typeof data['permitNumber'] === 'string' ? data['permitNumber'] : '',
+      permitTypeId: typeof data['permitTypeId'] === 'string' ? data['permitTypeId'] : '',
+      permitTypeNameSnapshot:
+        typeof data['permitTypeNameSnapshot'] === 'string' ? data['permitTypeNameSnapshot'] : '',
+      requestedByUserId: typeof data['requestedByUserId'] === 'string' ? data['requestedByUserId'] : '',
+      requestedByName: typeof data['requestedByName'] === 'string' ? data['requestedByName'] : '',
+      requesterRole: 'SITE_USER',
+      contractorOrTrade: typeof data['contractorOrTrade'] === 'string' ? data['contractorOrTrade'] : '',
+      workLocation: typeof data['workLocation'] === 'string' ? data['workLocation'] : '',
+      scopeOfWork: typeof data['scopeOfWork'] === 'string' ? data['scopeOfWork'] : '',
+      hazards: typeof data['hazards'] === 'string' ? data['hazards'] : '',
+      equipment: typeof data['equipment'] === 'string' ? data['equipment'] : '',
+      numberOfWorkers: typeof data['numberOfWorkers'] === 'number' ? data['numberOfWorkers'] : 0,
+      riskLevel:
+        data['riskLevel'] === 'LOW' || data['riskLevel'] === 'MEDIUM' || data['riskLevel'] === 'HIGH'
+          ? data['riskLevel']
+          : 'LOW',
+      startTime: this.toDate(data['startTime']),
+      durationHours: typeof data['durationHours'] === 'number' ? data['durationHours'] : 0,
+      expiryTime: this.toDate(data['expiryTime']),
+      status: this.toPermitStatus(data['status']),
+      createdAt: this.toDate(data['createdAt']),
+      updatedAt: this.toDate(data['updatedAt']),
+    };
+  }
+
+  private toPermitStatus(value: unknown): PermitStatus {
+    if (
+      value === 'SUBMITTED' ||
+      value === 'HSE_APPROVED' ||
+      value === 'APPROVED' ||
+      value === 'REJECTED' ||
+      value === 'EXPIRED' ||
+      value === 'CLOSED'
+    ) {
+      return value;
+    }
+
+    return 'SUBMITTED';
+  }
+
+  private toPermitEventAction(value: unknown): PermitEventAction {
+    return value === 'PERMIT_SUBMITTED' ? value : 'PERMIT_SUBMITTED';
+  }
+
+  private toDate(value: unknown): Date | null {
+    if (value instanceof Date) {
+      return value;
+    }
+
+    if (typeof value === 'object' && value && 'toDate' in value && typeof value.toDate === 'function') {
+      const date = value.toDate();
+      return date instanceof Date ? date : null;
+    }
+
+    if (typeof value === 'string') {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    return null;
+  }
+
+  private dateValue(date: Date | null): number {
+    return date?.getTime() ?? 0;
   }
 }

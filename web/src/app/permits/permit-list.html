@@ -1,0 +1,86 @@
+<section class="permit-list-page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Permits</p>
+      <h1>Permits</h1>
+    </div>
+    <label>
+      Status
+      <select #statusSelect [value]="statusFilter()" (change)="setStatusFilter(statusSelect.value)">
+        <option value="ALL">All</option>
+        <option value="SUBMITTED">Pending HSE Approval</option>
+        <option value="HSE_APPROVED">Pending Construction Manager Approval</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="EXPIRED">Expired</option>
+        <option value="CLOSED">Closed</option>
+      </select>
+    </label>
+  </div>
+
+  @if (loading()) {
+    <section class="state-panel">
+      <p>Loading permits...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel error">
+      <p>{{ errorMessage() }}</p>
+    </section>
+  } @else if (filteredPermits().length === 0) {
+    <section class="state-panel">
+      <p>No permits found.</p>
+      <a routerLink="/permits/new">Create your first permit.</a>
+    </section>
+  } @else {
+    <section class="desktop-list" aria-label="Permit list">
+      <table>
+        <thead>
+          <tr>
+            <th>Permit</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Requester</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>Expiry</th>
+            <th>Expiry state</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (permit of filteredPermits(); track permit.id) {
+            <tr>
+              <td>{{ permit.permitNumber }}</td>
+              <td>{{ permit.permitTypeNameSnapshot }}</td>
+              <td>{{ permit.workLocation }}</td>
+              <td>{{ permit.requestedByName }}</td>
+              <td><span class="status-badge">{{ statusLabel(permit.status) }}</span></td>
+              <td>{{ formatDateTime(permit.startTime) }}</td>
+              <td>{{ formatDateTime(permit.expiryTime) }}</td>
+              <td>{{ expiryState(permit) }}</td>
+              <td><a [routerLink]="['/permits', permit.id]">View</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="mobile-list" aria-label="Permit cards">
+      @for (permit of filteredPermits(); track permit.id) {
+        <article class="permit-card">
+          <div>
+            <strong>{{ permit.permitNumber }}</strong>
+            <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+          </div>
+          <p>{{ permit.permitTypeNameSnapshot }}</p>
+          <p>{{ permit.workLocation }}</p>
+          <p>Requester: {{ permit.requestedByName }}</p>
+          <p>Start: {{ formatDateTime(permit.startTime) }}</p>
+          <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
+          <p>Expiry state: {{ expiryState(permit) }}</p>
+          <a [routerLink]="['/permits', permit.id]">View details</a>
+        </article>
+      }
+    </section>
+  }
+</section>
