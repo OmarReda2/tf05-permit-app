@@ -111,6 +111,14 @@ export class PermitService {
       .sort((first, second) => this.dateValue(second.createdAt) - this.dateValue(first.createdAt));
   }
 
+  async getHseApprovedPermits(): Promise<Permit[]> {
+    const snapshot = await getDocs(query(collection(this.firestore, 'permits'), where('status', '==', 'HSE_APPROVED')));
+
+    return snapshot.docs
+      .map((permitDoc) => this.toPermit(permitDoc.id, permitDoc.data()))
+      .sort((first, second) => this.dateValue(second.createdAt) - this.dateValue(first.createdAt));
+  }
+
   async getPermitById(id: string): Promise<Permit | null> {
     const snapshot = await getDoc(doc(this.firestore, 'permits', id));
 
@@ -187,6 +195,28 @@ export class PermitService {
     await this.saveHseDecision(permitId, actor, 'HSE_REJECTED', trimmedReason);
   }
 
+  async approveByConstructionManager(permitId: string, actor: UserProfile): Promise<void> {
+    if (actor.role !== 'CONSTRUCTION_MANAGER') {
+      throw new Error('Only Construction Managers can approve HSE-approved permits.');
+    }
+
+    await this.saveConstructionManagerDecision(permitId, actor, 'CM_APPROVED');
+  }
+
+  async rejectByConstructionManager(permitId: string, reason: string, actor: UserProfile): Promise<void> {
+    const trimmedReason = reason.trim();
+
+    if (actor.role !== 'CONSTRUCTION_MANAGER') {
+      throw new Error('Only Construction Managers can reject HSE-approved permits.');
+    }
+
+    if (!trimmedReason) {
+      throw new Error('Rejection reason is required.');
+    }
+
+    await this.saveConstructionManagerDecision(permitId, actor, 'CM_REJECTED', trimmedReason);
+  }
+
   private async saveHseDecision(
     permitId: string,
     actor: UserProfile,
@@ -223,6 +253,47 @@ export class PermitService {
         actorName: actor.displayName,
         actorRole: 'HSE_MANAGER',
         comment: action === 'HSE_REJECTED' ? rejectionReason : 'Permit approved by HSE.',
+        createdAt: serverTimestamp(),
+      });
+    });
+  }
+
+  private async saveConstructionManagerDecision(
+    permitId: string,
+    actor: UserProfile,
+    action: 'CM_APPROVED' | 'CM_REJECTED',
+    rejectionReason = '',
+  ): Promise<void> {
+    const permitRef = doc(this.firestore, 'permits', permitId);
+    const eventRef = doc(collection(this.firestore, 'permitEvents'));
+    const nextStatus: PermitStatus = action === 'CM_APPROVED' ? 'APPROVED' : 'REJECTED';
+
+    await runTransaction(this.firestore, async (transaction) => {
+      const permitSnapshot = await transaction.get(permitRef);
+
+      if (!permitSnapshot.exists()) {
+        throw new Error('Permit was not found.');
+      }
+
+      if (permitSnapshot.data()['status'] !== 'HSE_APPROVED') {
+        throw new Error('Only HSE-approved permits can be reviewed by Construction Manager.');
+      }
+
+      transaction.update(permitRef, {
+        status: nextStatus,
+        cmApprovedBy: actor.displayName,
+        cmApprovedAt: serverTimestamp(),
+        ...(action === 'CM_REJECTED' ? { rejectionReason } : {}),
+        updatedAt: serverTimestamp(),
+      });
+
+      transaction.set(eventRef, {
+        permitId,
+        action,
+        actorUserId: actor.uid,
+        actorName: actor.displayName,
+        actorRole: 'CONSTRUCTION_MANAGER',
+        comment: action === 'CM_REJECTED' ? rejectionReason : 'Permit approved by Construction Manager.',
         createdAt: serverTimestamp(),
       });
     });
@@ -278,7 +349,13 @@ export class PermitService {
   }
 
   private toPermitEventAction(value: unknown): PermitEventAction {
-    if (value === 'PERMIT_SUBMITTED' || value === 'HSE_APPROVED' || value === 'HSE_REJECTED') {
+    if (
+      value === 'PERMIT_SUBMITTED' ||
+      value === 'HSE_APPROVED' ||
+      value === 'HSE_REJECTED' ||
+      value === 'CM_APPROVED' ||
+      value === 'CM_REJECTED'
+    ) {
       return value;
     }
 

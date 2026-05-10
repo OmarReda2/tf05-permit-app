@@ -42,10 +42,16 @@
         @if (permit.rejectionReason) {
           <div><dt>Rejection reason</dt><dd>{{ permit.rejectionReason }}</dd></div>
         }
+        @if (permit.cmApprovedBy) {
+          <div><dt>CM reviewed by</dt><dd>{{ permit.cmApprovedBy }}</dd></div>
+        }
+        @if (permit.cmApprovedAt) {
+          <div><dt>CM reviewed at</dt><dd>{{ formatDateTime(permit.cmApprovedAt) }}</dd></div>
+        }
       </dl>
     </section>
 
-    @if (canHseAct(permit) || actionSuccessMessage() || actionErrorMessage()) {
+    @if (canHseAct(permit) || actionContext() === 'HSE') {
       <section class="details-section hse-actions">
         <h2>HSE Review</h2>
         @if (actionSuccessMessage()) {
@@ -62,6 +68,35 @@
               <textarea #rejectionReason rows="3" placeholder="Required when rejecting"></textarea>
             </label>
             <button class="danger" type="button" [disabled]="actionSaving()" (click)="rejectByHse(permit.id, rejectionReason.value)">
+              Reject
+            </button>
+          </div>
+        }
+      </section>
+    }
+
+    @if (canConstructionManagerAct(permit) || actionContext() === 'CM') {
+      <section class="details-section hse-actions">
+        <h2>Construction Manager Review</h2>
+        @if (actionSuccessMessage()) {
+          <p class="success-message">{{ actionSuccessMessage() }}</p>
+        }
+        @if (actionErrorMessage()) {
+          <p class="error-message">{{ actionErrorMessage() }}</p>
+        }
+        @if (canConstructionManagerAct(permit)) {
+          <div class="action-grid">
+            <button type="button" [disabled]="actionSaving()" (click)="approveByConstructionManager(permit.id)">Approve</button>
+            <label>
+              Rejection reason
+              <textarea #cmRejectionReason rows="3" placeholder="Required when rejecting"></textarea>
+            </label>
+            <button
+              class="danger"
+              type="button"
+              [disabled]="actionSaving()"
+              (click)="rejectByConstructionManager(permit.id, cmRejectionReason.value)"
+            >
               Reject
             </button>
           </div>

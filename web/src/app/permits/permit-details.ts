@@ -26,6 +26,7 @@ export class PermitDetails implements OnInit {
   protected readonly errorMessage = signal('');
   protected readonly actionErrorMessage = signal('');
   protected readonly actionSuccessMessage = signal('');
+  protected readonly actionContext = signal<'HSE' | 'CM' | ''>('');
 
   protected readonly statusLabel = statusLabel;
   protected readonly expiryState = expiryState;
@@ -46,6 +47,10 @@ export class PermitDetails implements OnInit {
     return this.userService.profile()?.role === 'HSE_MANAGER' && permit.status === 'SUBMITTED';
   }
 
+  protected canConstructionManagerAct(permit: Permit): boolean {
+    return this.userService.profile()?.role === 'CONSTRUCTION_MANAGER' && permit.status === 'HSE_APPROVED';
+  }
+
   protected async approveByHse(permitId: string): Promise<void> {
     const profile = this.userService.profile();
 
@@ -55,6 +60,7 @@ export class PermitDetails implements OnInit {
     }
 
     this.actionSaving.set(true);
+    this.actionContext.set('HSE');
     this.actionErrorMessage.set('');
     this.actionSuccessMessage.set('');
 
@@ -79,17 +85,74 @@ export class PermitDetails implements OnInit {
     }
 
     if (!trimmedReason) {
+      this.actionContext.set('HSE');
       this.actionErrorMessage.set('Rejection reason is required.');
       return;
     }
 
     this.actionSaving.set(true);
+    this.actionContext.set('HSE');
     this.actionErrorMessage.set('');
     this.actionSuccessMessage.set('');
 
     try {
       await this.permitService.rejectByHse(permitId, trimmedReason, profile);
       this.actionSuccessMessage.set('Permit rejected by HSE.');
+      await this.loadPermit(permitId);
+    } catch (error) {
+      this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be rejected.');
+    } finally {
+      this.actionSaving.set(false);
+    }
+  }
+
+  protected async approveByConstructionManager(permitId: string): Promise<void> {
+    const profile = this.userService.profile();
+
+    if (!profile) {
+      this.actionErrorMessage.set('User profile is not loaded.');
+      return;
+    }
+
+    this.actionSaving.set(true);
+    this.actionContext.set('CM');
+    this.actionErrorMessage.set('');
+    this.actionSuccessMessage.set('');
+
+    try {
+      await this.permitService.approveByConstructionManager(permitId, profile);
+      this.actionSuccessMessage.set('Permit approved by Construction Manager.');
+      await this.loadPermit(permitId);
+    } catch (error) {
+      this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be approved.');
+    } finally {
+      this.actionSaving.set(false);
+    }
+  }
+
+  protected async rejectByConstructionManager(permitId: string, reason: string): Promise<void> {
+    const profile = this.userService.profile();
+    const trimmedReason = reason.trim();
+
+    if (!profile) {
+      this.actionErrorMessage.set('User profile is not loaded.');
+      return;
+    }
+
+    if (!trimmedReason) {
+      this.actionContext.set('CM');
+      this.actionErrorMessage.set('Rejection reason is required.');
+      return;
+    }
+
+    this.actionSaving.set(true);
+    this.actionContext.set('CM');
+    this.actionErrorMessage.set('');
+    this.actionSuccessMessage.set('');
+
+    try {
+      await this.permitService.rejectByConstructionManager(permitId, trimmedReason, profile);
+      this.actionSuccessMessage.set('Permit rejected by Construction Manager.');
       await this.loadPermit(permitId);
     } catch (error) {
       this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be rejected.');

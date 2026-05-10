@@ -6,15 +6,15 @@
     </div>
   </section>
 
-  @if (!isHseManager()) {
+  @if (!canReviewApprovals()) {
     <section class="state-panel">
-      <h2>Construction Manager approvals are not part of this slice.</h2>
-      <p>HSE approval is available now. Construction Manager approval will be added in a later slice.</p>
+      <h2>Approvals are not available for this role.</h2>
+      <p>Your profile does not have approval access.</p>
     </section>
   } @else {
     <section class="queue-heading">
-      <h2>Pending HSE Approvals</h2>
-      <p>Submitted permits waiting for HSE review.</p>
+      <h2>{{ queueTitle() }}</h2>
+      <p>{{ queueDescription() }}</p>
     </section>
 
     @if (successMessage()) {
@@ -38,10 +38,10 @@
       </section>
     } @else if (permits().length === 0) {
       <section class="state-panel">
-        <p>No submitted permits are waiting for HSE approval.</p>
+        <p>{{ emptyMessage() }}</p>
       </section>
     } @else {
-      <section class="desktop-list" aria-label="Pending HSE approvals">
+      <section class="desktop-list" [attr.aria-label]="queueTitle()">
         <table>
           <thead>
             <tr>
@@ -52,6 +52,9 @@
               <th>Risk</th>
               <th>Start</th>
               <th>Expiry</th>
+              @if (isConstructionManager()) {
+                <th>HSE approved by</th>
+              }
               <th>Actions</th>
             </tr>
           </thead>
@@ -65,6 +68,9 @@
                 <td>{{ permit.riskLevel }}</td>
                 <td>{{ formatDateTime(permit.startTime) }}</td>
                 <td>{{ formatDateTime(permit.expiryTime) }}</td>
+                @if (isConstructionManager()) {
+                  <td>{{ permit.hseApprovedBy || 'Not recorded' }}</td>
+                }
                 <td>
                   <div class="actions">
                     <a [routerLink]="['/permits', permit.id]">View</a>
@@ -88,7 +94,7 @@
         </table>
       </section>
 
-      <section class="mobile-list" aria-label="Pending HSE approval cards">
+      <section class="mobile-list" [attr.aria-label]="queueTitle()">
         @for (permit of permits(); track permit.id) {
           <article class="permit-card">
             <div class="card-heading">
@@ -102,6 +108,9 @@
             <p>Start: {{ formatDateTime(permit.startTime) }}</p>
             <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
             <p>Expiry state: {{ expiryState(permit) }}</p>
+            @if (isConstructionManager()) {
+              <p>HSE approved by: {{ permit.hseApprovedBy || 'Not recorded' }}</p>
+            }
             <div class="actions">
               <a [routerLink]="['/permits', permit.id]">View details</a>
               <button type="button" [disabled]="processingPermitId() === permit.id" (click)="approvePermit(permit.id)">

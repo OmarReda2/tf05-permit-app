@@ -2,7 +2,7 @@ import { type RiskLevel } from '../admin/permit-type.model';
 import { type UserRole } from '../auth/user-profile.model';
 
 export type PermitStatus = 'SUBMITTED' | 'HSE_APPROVED' | 'APPROVED' | 'REJECTED' | 'EXPIRED' | 'CLOSED';
-export type PermitEventAction = 'PERMIT_SUBMITTED' | 'HSE_APPROVED' | 'HSE_REJECTED';
+export type PermitEventAction = 'PERMIT_SUBMITTED' | 'HSE_APPROVED' | 'HSE_REJECTED' | 'CM_APPROVED' | 'CM_REJECTED';
 
 export interface Permit {
   id: string;

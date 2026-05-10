@@ -29,7 +29,7 @@ export class HseApprovals implements OnInit {
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {
-    if (!this.isHseManager()) {
+    if (!this.canReviewApprovals()) {
       return;
     }
 
@@ -38,6 +38,30 @@ export class HseApprovals implements OnInit {
 
   protected isHseManager(): boolean {
     return this.userService.profile()?.role === 'HSE_MANAGER';
+  }
+
+  protected isConstructionManager(): boolean {
+    return this.userService.profile()?.role === 'CONSTRUCTION_MANAGER';
+  }
+
+  protected canReviewApprovals(): boolean {
+    return this.isHseManager() || this.isConstructionManager();
+  }
+
+  protected queueTitle(): string {
+    return this.isConstructionManager() ? 'Pending Construction Manager Approvals' : 'Pending HSE Approvals';
+  }
+
+  protected queueDescription(): string {
+    return this.isConstructionManager()
+      ? 'HSE-approved permits waiting for final review.'
+      : 'Submitted permits waiting for HSE review.';
+  }
+
+  protected emptyMessage(): string {
+    return this.isConstructionManager()
+      ? 'No HSE-approved permits are waiting for Construction Manager approval.'
+      : 'No submitted permits are waiting for HSE approval.';
   }
 
   protected async approvePermit(permitId: string): Promise<void> {
@@ -53,8 +77,14 @@ export class HseApprovals implements OnInit {
     this.successMessage.set('');
 
     try {
-      await this.permitService.approveByHse(permitId, profile);
-      this.successMessage.set('Permit approved by HSE.');
+      if (this.isConstructionManager()) {
+        await this.permitService.approveByConstructionManager(permitId, profile);
+        this.successMessage.set('Permit approved by Construction Manager.');
+      } else {
+        await this.permitService.approveByHse(permitId, profile);
+        this.successMessage.set('Permit approved by HSE.');
+      }
+
       await this.loadPermits();
     } catch (error) {
       this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be approved.');
@@ -82,8 +112,14 @@ export class HseApprovals implements OnInit {
     this.successMessage.set('');
 
     try {
-      await this.permitService.rejectByHse(permitId, trimmedReason, profile);
-      this.successMessage.set('Permit rejected by HSE.');
+      if (this.isConstructionManager()) {
+        await this.permitService.rejectByConstructionManager(permitId, trimmedReason, profile);
+        this.successMessage.set('Permit rejected by Construction Manager.');
+      } else {
+        await this.permitService.rejectByHse(permitId, trimmedReason, profile);
+        this.successMessage.set('Permit rejected by HSE.');
+      }
+
       await this.loadPermits();
     } catch (error) {
       this.actionErrorMessage.set(error instanceof Error ? error.message : 'Permit could not be rejected.');
@@ -97,9 +133,13 @@ export class HseApprovals implements OnInit {
     this.loadErrorMessage.set('');
 
     try {
-      this.permits.set(await this.permitService.getSubmittedPermits());
+      const permits = this.isConstructionManager()
+        ? await this.permitService.getHseApprovedPermits()
+        : await this.permitService.getSubmittedPermits();
+
+      this.permits.set(permits);
     } catch {
-      this.loadErrorMessage.set('Submitted permits could not be loaded. Check your access and try again.');
+      this.loadErrorMessage.set('Approval queue could not be loaded. Check your access and try again.');
     } finally {
       this.loading.set(false);
     }
