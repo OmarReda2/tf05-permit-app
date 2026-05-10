@@ -27,6 +27,7 @@ export class PermitDetails implements OnInit {
   protected readonly actionErrorMessage = signal('');
   protected readonly actionSuccessMessage = signal('');
   protected readonly actionContext = signal<'HSE' | 'CM' | ''>('');
+  protected readonly generatedAt = signal(new Date());
 
   protected readonly statusLabel = statusLabel;
   protected readonly expiryState = expiryState;
@@ -49,6 +50,11 @@ export class PermitDetails implements OnInit {
 
   protected canConstructionManagerAct(permit: Permit): boolean {
     return this.userService.profile()?.role === 'CONSTRUCTION_MANAGER' && permit.status === 'HSE_APPROVED';
+  }
+
+  protected printPermit(): void {
+    this.generatedAt.set(new Date());
+    window.setTimeout(() => window.print());
   }
 
   protected async approveByHse(permitId: string): Promise<void> {

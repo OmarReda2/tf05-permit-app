@@ -1,5 +1,5 @@
 <section class="permit-details-page">
-  <a class="back-link" routerLink="/permits">Back to permits</a>
+  <a class="back-link no-print" routerLink="/permits">Back to permits</a>
 
   @if (loading()) {
     <section class="state-panel">
@@ -14,8 +14,16 @@
       <div>
         <p class="eyebrow">Permit details</p>
         <h1>{{ permit.permitNumber }}</h1>
+        <div class="print-header">
+          <p>TF-05 Safety Permit App</p>
+          <p>TF-05-C1 - Sheikh Zayed Road Storm Water Drainage</p>
+          <p>Generated: {{ formatDateTime(generatedAt()) }}</p>
+        </div>
       </div>
-      <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+      <div class="heading-actions">
+        <span class="status-badge">{{ statusLabel(permit.status) }}</span>
+        <button class="print-button no-print" type="button" (click)="printPermit()">Print / Save PDF</button>
+      </div>
     </section>
 
     <section class="details-section">
@@ -33,26 +41,11 @@
         <div><dt>Expiry time</dt><dd>{{ formatDateTime(permit.expiryTime) }}</dd></div>
         <div><dt>Expiry state</dt><dd>{{ expiryState(permit) }}</dd></div>
         <div><dt>Status</dt><dd>{{ statusLabel(permit.status) }}</dd></div>
-        @if (permit.hseApprovedBy) {
-          <div><dt>HSE reviewed by</dt><dd>{{ permit.hseApprovedBy }}</dd></div>
-        }
-        @if (permit.hseApprovedAt) {
-          <div><dt>HSE reviewed at</dt><dd>{{ formatDateTime(permit.hseApprovedAt) }}</dd></div>
-        }
-        @if (permit.rejectionReason) {
-          <div><dt>Rejection reason</dt><dd>{{ permit.rejectionReason }}</dd></div>
-        }
-        @if (permit.cmApprovedBy) {
-          <div><dt>CM reviewed by</dt><dd>{{ permit.cmApprovedBy }}</dd></div>
-        }
-        @if (permit.cmApprovedAt) {
-          <div><dt>CM reviewed at</dt><dd>{{ formatDateTime(permit.cmApprovedAt) }}</dd></div>
-        }
       </dl>
     </section>
 
     @if (canHseAct(permit) || actionContext() === 'HSE') {
-      <section class="details-section hse-actions">
+      <section class="details-section hse-actions no-print">
         <h2>HSE Review</h2>
         @if (actionSuccessMessage()) {
           <p class="success-message">{{ actionSuccessMessage() }}</p>
@@ -76,7 +69,7 @@
     }
 
     @if (canConstructionManagerAct(permit) || actionContext() === 'CM') {
-      <section class="details-section hse-actions">
+      <section class="details-section hse-actions no-print">
         <h2>Construction Manager Review</h2>
         @if (actionSuccessMessage()) {
           <p class="success-message">{{ actionSuccessMessage() }}</p>
@@ -103,6 +96,22 @@
         }
       </section>
     }
+
+    <section class="details-section">
+      <h2>Approval information</h2>
+      <dl class="details-grid">
+        <div><dt>HSE approved by</dt><dd>{{ permit.hseApprovedBy || 'Not approved yet' }}</dd></div>
+        <div><dt>HSE approved at</dt><dd>{{ permit.hseApprovedAt ? formatDateTime(permit.hseApprovedAt) : 'Not approved yet' }}</dd></div>
+        <div><dt>Construction Manager approved by</dt><dd>{{ permit.cmApprovedBy || 'Not approved yet' }}</dd></div>
+        <div><dt>Construction Manager approved at</dt><dd>{{ permit.cmApprovedAt ? formatDateTime(permit.cmApprovedAt) : 'Not approved yet' }}</dd></div>
+        @if (permit.status === 'REJECTED') {
+          <div><dt>Approval result</dt><dd>Rejected</dd></div>
+        }
+        @if (permit.rejectionReason) {
+          <div><dt>Rejection reason</dt><dd>{{ permit.rejectionReason }}</dd></div>
+        }
+      </dl>
+    </section>
 
     <section class="details-section">
       <h2>Work details</h2>

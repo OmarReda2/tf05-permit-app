@@ -215,3 +215,31 @@
     background: #e8f1ef;
   }
 }
+
+@media print {
+  :host {
+    min-height: auto;
+  }
+
+  .app-shell {
+    display: block;
+    min-height: auto;
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .sidebar,
+  .topbar,
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .main-column {
+    display: block;
+  }
+
+  .page-content {
+    max-width: none;
+    padding: 0;
+  }
+}
