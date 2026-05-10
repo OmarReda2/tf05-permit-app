@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { UserService } from '../auth/user.service';
@@ -124,6 +124,11 @@ export class HseApprovals implements OnInit {
 
   protected cancelPendingAction(): void {
     this.pendingAction.set(null);
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closePendingActionOnEscape(): void {
+    this.cancelPendingAction();
   }
 
   protected async confirmPendingAction(): Promise<void> {

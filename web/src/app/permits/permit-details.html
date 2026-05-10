@@ -184,23 +184,29 @@
       }
     </section>
 
-    @if (pendingAction(); as action) {
-      <div class="dialog-backdrop no-print" role="presentation" (click)="cancelPendingAction()">
+    <div
+      class="dialog-backdrop no-print"
+      [class.open]="pendingAction() !== null"
+      [attr.aria-hidden]="pendingAction() === null"
+      role="presentation"
+      (click)="cancelPendingAction()"
+    >
+      @if (pendingAction(); as action) {
         <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="permit-action-title" (click)="$event.stopPropagation()">
           <h2 id="permit-action-title">{{ action.title }}</h2>
           <p>{{ action.message }}</p>
           <div class="dialog-actions">
             <button type="button" class="print-button" (click)="cancelPendingAction()">Cancel</button>
-            <button type="button" [class.danger]="action.destructive" (click)="confirmPendingAction()">
+            <button type="button" [class.danger]="action.destructive" [disabled]="actionSaving()" (click)="confirmPendingAction()">
               {{ action.confirmLabel }}
             </button>
           </div>
         </section>
-      </div>
-    }
+      }
+    </div>
 
     @if (snackMessage()) {
-      <p class="snackbar no-print" role="status">{{ snackMessage() }}</p>
+      <p class="snackbar open no-print" role="status">{{ snackMessage() }}</p>
     }
   }
 </section>

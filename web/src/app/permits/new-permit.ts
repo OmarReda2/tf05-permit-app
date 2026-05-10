@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -20,6 +20,7 @@ import { type CreatePermitInput } from './permit.model';
 })
 export class NewPermit implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly router = inject(Router);
   private readonly permitService = inject(PermitService);
   protected readonly checklistItemsService = inject(ChecklistItemsService);
@@ -116,10 +117,13 @@ export class NewPermit implements OnInit {
 
     if (this.permitForm.invalid) {
       this.permitForm.markAllAsTouched();
+      this.errorMessage.set('Please complete the required permit fields before submitting.');
+      this.focusFirstInvalidField();
       return;
     }
 
     if (!this.getValidatedInput()) {
+      this.scrollToFeedback();
       return;
     }
 
@@ -130,6 +134,11 @@ export class NewPermit implements OnInit {
     this.confirmSubmitOpen.set(false);
   }
 
+  @HostListener('document:keydown.escape')
+  protected closeSubmitConfirmationOnEscape(): void {
+    this.cancelSubmitConfirmation();
+  }
+
   protected async submitPermit(): Promise<void> {
     this.confirmSubmitOpen.set(false);
     this.errorMessage.set('');
@@ -138,6 +147,7 @@ export class NewPermit implements OnInit {
     const input = this.getValidatedInput();
 
     if (!input) {
+      this.scrollToFeedback();
       return;
     }
 
@@ -149,6 +159,7 @@ export class NewPermit implements OnInit {
       await this.router.navigateByUrl('/permits');
     } catch {
       this.errorMessage.set('Permit could not be submitted. Check your access and try again.');
+      this.scrollToFeedback();
     } finally {
       this.isSubmitting.set(false);
     }
@@ -261,5 +272,24 @@ export class NewPermit implements OnInit {
     ].join('');
 
     return `PTW-${date}-${time}`;
+  }
+
+  private focusFirstInvalidField(): void {
+    window.setTimeout(() => {
+      const invalidControl = this.elementRef.nativeElement.querySelector(
+        'select.ng-invalid, input.ng-invalid, textarea.ng-invalid',
+      ) as HTMLElement | null;
+
+      invalidControl?.focus();
+      invalidControl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  private scrollToFeedback(): void {
+    window.setTimeout(() => {
+      const feedback = this.elementRef.nativeElement.querySelector('.form-error') as HTMLElement | null;
+
+      feedback?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 }
