@@ -16,6 +16,7 @@
 }
 
 .page-heading,
+.page-action-bar,
 .details-section,
 .state-panel {
   padding: 24px;
@@ -38,6 +39,26 @@
   gap: 10px;
   align-items: center;
   justify-content: flex-end;
+}
+
+.page-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-action-bar div {
+  display: grid;
+  gap: 3px;
+}
+
+.page-action-bar strong {
+  color: var(--tf-heading);
+}
+
+.page-action-bar span {
+  color: var(--tf-muted);
 }
 
 .print-header {
@@ -75,20 +96,6 @@ h2 {
   margin: 8px 0 0;
   color: var(--tf-muted);
   line-height: 1.5;
-}
-
-.check-state {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  min-height: 24px;
-  padding: 3px 8px;
-  border: 1px solid #cce8d2;
-  border-radius: 999px;
-  background: var(--tf-success-soft);
-  color: var(--tf-success);
-  font-size: 0.76rem;
-  font-weight: 600;
 }
 
 .details-grid {

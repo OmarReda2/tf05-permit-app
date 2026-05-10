@@ -32,6 +32,7 @@ export class NewPermit implements OnInit {
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
   protected readonly isSubmitting = signal(false);
+  protected readonly confirmSubmitOpen = signal(false);
 
   protected readonly activePermitTypes = computed(() =>
     this.permitTypesService.permitTypes().filter((permitType) => permitType.active),
@@ -109,7 +110,7 @@ export class NewPermit implements OnInit {
     }));
   }
 
-  protected async submitPermit(): Promise<void> {
+  protected requestSubmitPermit(): void {
     this.errorMessage.set('');
     this.successMessage.set('');
 
@@ -117,6 +118,22 @@ export class NewPermit implements OnInit {
       this.permitForm.markAllAsTouched();
       return;
     }
+
+    if (!this.getValidatedInput()) {
+      return;
+    }
+
+    this.confirmSubmitOpen.set(true);
+  }
+
+  protected cancelSubmitConfirmation(): void {
+    this.confirmSubmitOpen.set(false);
+  }
+
+  protected async submitPermit(): Promise<void> {
+    this.confirmSubmitOpen.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     const input = this.getValidatedInput();
 

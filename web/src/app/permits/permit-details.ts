@@ -6,6 +6,25 @@ import { expiryState, expiryStateClass, formatDateTime, riskClass, statusClass, 
 import { type Permit, type PermitChecklistResponse, type PermitEvent } from './permit.model';
 import { PermitService } from './permit.service';
 
+type PendingPermitAction =
+  | {
+      type: 'HSE_APPROVE' | 'CM_APPROVE';
+      permitId: string;
+      title: string;
+      message: string;
+      confirmLabel: string;
+      destructive: false;
+    }
+  | {
+      type: 'HSE_REJECT' | 'CM_REJECT';
+      permitId: string;
+      reason: string;
+      title: string;
+      message: string;
+      confirmLabel: string;
+      destructive: true;
+    };
+
 @Component({
   selector: 'app-permit-details',
   imports: [RouterLink],
@@ -28,6 +47,8 @@ export class PermitDetails implements OnInit {
   protected readonly actionSuccessMessage = signal('');
   protected readonly actionContext = signal<'HSE' | 'CM' | ''>('');
   protected readonly generatedAt = signal(new Date());
+  protected readonly pendingAction = signal<PendingPermitAction | null>(null);
+  protected readonly snackMessage = signal('');
 
   protected readonly statusLabel = statusLabel;
   protected readonly statusClass = statusClass;
@@ -65,6 +86,101 @@ export class PermitDetails implements OnInit {
         document.title = previousTitle;
       }, 500);
     });
+  }
+
+  protected requestApproveByHse(permitId: string): void {
+    this.pendingAction.set({
+      type: 'HSE_APPROVE',
+      permitId,
+      title: 'Approve permit as HSE?',
+      message: 'This moves the permit to Construction Manager review.',
+      confirmLabel: 'Approve',
+      destructive: false,
+    });
+  }
+
+  protected requestRejectByHse(permitId: string, reason: string): void {
+    const trimmedReason = reason.trim();
+
+    if (!trimmedReason) {
+      this.actionContext.set('HSE');
+      this.actionErrorMessage.set('Rejection reason is required.');
+      return;
+    }
+
+    this.pendingAction.set({
+      type: 'HSE_REJECT',
+      permitId,
+      reason: trimmedReason,
+      title: 'Reject permit as HSE?',
+      message: 'This will mark the permit as rejected and record your reason in the event log.',
+      confirmLabel: 'Reject',
+      destructive: true,
+    });
+  }
+
+  protected requestApproveByConstructionManager(permitId: string): void {
+    this.pendingAction.set({
+      type: 'CM_APPROVE',
+      permitId,
+      title: 'Final approve permit?',
+      message: 'This marks the permit as approved and active until its expiry time.',
+      confirmLabel: 'Approve',
+      destructive: false,
+    });
+  }
+
+  protected requestRejectByConstructionManager(permitId: string, reason: string): void {
+    const trimmedReason = reason.trim();
+
+    if (!trimmedReason) {
+      this.actionContext.set('CM');
+      this.actionErrorMessage.set('Rejection reason is required.');
+      return;
+    }
+
+    this.pendingAction.set({
+      type: 'CM_REJECT',
+      permitId,
+      reason: trimmedReason,
+      title: 'Reject permit as Construction Manager?',
+      message: 'This will mark the permit as rejected and record your reason in the event log.',
+      confirmLabel: 'Reject',
+      destructive: true,
+    });
+  }
+
+  protected cancelPendingAction(): void {
+    this.pendingAction.set(null);
+  }
+
+  protected async confirmPendingAction(): Promise<void> {
+    const pendingAction = this.pendingAction();
+
+    if (!pendingAction) {
+      return;
+    }
+
+    this.pendingAction.set(null);
+
+    switch (pendingAction.type) {
+      case 'HSE_APPROVE':
+        await this.approveByHse(pendingAction.permitId);
+        break;
+      case 'HSE_REJECT':
+        await this.rejectByHse(pendingAction.permitId, pendingAction.reason);
+        break;
+      case 'CM_APPROVE':
+        await this.approveByConstructionManager(pendingAction.permitId);
+        break;
+      case 'CM_REJECT':
+        await this.rejectByConstructionManager(pendingAction.permitId, pendingAction.reason);
+        break;
+    }
+
+    if (this.actionSuccessMessage()) {
+      this.showSnack(this.actionSuccessMessage());
+    }
   }
 
   protected async approveByHse(permitId: string): Promise<void> {
@@ -208,5 +324,14 @@ export class PermitDetails implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private showSnack(message: string): void {
+    this.snackMessage.set(message);
+    window.setTimeout(() => {
+      if (this.snackMessage() === message) {
+        this.snackMessage.set('');
+      }
+    }, 2600);
   }
 }

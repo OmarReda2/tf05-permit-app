@@ -1,17 +1,36 @@
 .login-page {
+  position: relative;
   display: grid;
   min-height: 100dvh;
+  overflow: hidden;
   place-items: center;
   padding: 24px;
-  background: var(--tf-bg);
+  background:
+    radial-gradient(circle at 18% 16%, color-mix(in srgb, var(--tf-primary) 13%, transparent), transparent 28rem),
+    radial-gradient(circle at 82% 76%, color-mix(in srgb, var(--tf-accent) 13%, transparent), transparent 24rem),
+    linear-gradient(135deg, var(--tf-bg), var(--tf-surface-subtle));
+}
+
+.login-page::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--tf-border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tf-border-subtle) 1px, transparent 1px);
+  background-size: 42px 42px;
+  content: '';
+  opacity: 0.28;
+  pointer-events: none;
 }
 
 .login-panel {
+  position: relative;
+  z-index: 1;
   width: min(100%, 420px);
   padding: 32px;
   border: 1px solid var(--tf-border);
   border-radius: var(--tf-radius);
-  background: var(--tf-surface);
+  background: color-mix(in srgb, var(--tf-surface) 96%, transparent);
   box-shadow: var(--tf-shadow-md);
 }
 

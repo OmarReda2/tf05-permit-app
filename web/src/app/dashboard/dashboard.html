@@ -92,11 +92,15 @@
               <strong>{{ permit.permitNumber }}</strong>
               <span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span>
             </div>
-            <p>{{ permit.permitTypeNameSnapshot }}</p>
-            <p>Location: {{ permit.workLocation }}</p>
-            <p>Risk: <span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></p>
-            <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>
-            <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
+            <p class="permit-type">{{ permit.permitTypeNameSnapshot }}</p>
+            <div class="permit-meta">
+              <span>{{ permit.workLocation }}</span>
+              <span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span>
+            </div>
+            <div class="permit-meta secondary">
+              <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span>
+              <span>{{ formatDateTime(permit.expiryTime) }}</span>
+            </div>
             <a [routerLink]="['/permits', permit.id]">View details</a>
           </article>
         }

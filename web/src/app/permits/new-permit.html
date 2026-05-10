@@ -5,7 +5,7 @@
     <p class="page-subtitle">Capture work scope, risk, duration, and safety checklist confirmation.</p>
   </div>
 
-  <form [formGroup]="permitForm" (ngSubmit)="submitPermit()" novalidate>
+  <form [formGroup]="permitForm" (ngSubmit)="requestSubmitPermit()" novalidate>
     <section class="form-section">
       <h2>Basic information</h2>
 
@@ -113,7 +113,11 @@
       @if (!selectedPermitType()) {
         <p class="muted">Select a permit type to load checklist items.</p>
       } @else if (checklistItemsService.loading()) {
-        <p class="muted">Loading checklist items...</p>
+        <div class="loading-state" aria-live="polite">
+          <span class="linear-progress" aria-hidden="true"></span>
+          <span class="skeleton-line"></span>
+          <span class="skeleton-line short"></span>
+        </div>
       } @else if (activeChecklistItems().length === 0) {
         <p class="muted">No active checklist items are configured for this permit type.</p>
       } @else {
@@ -184,10 +188,26 @@
 
       <div class="form-actions">
         <button type="submit" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="button-spinner" aria-hidden="true"></span>
+          }
           {{ isSubmitting() ? 'Submitting...' : 'Submit for HSE Approval' }}
         </button>
         <button type="button" class="secondary-button" (click)="cancel()">Cancel</button>
       </div>
     </section>
   </form>
+
+  @if (confirmSubmitOpen()) {
+    <div class="dialog-backdrop" role="presentation" (click)="cancelSubmitConfirmation()">
+      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="submit-permit-title" (click)="$event.stopPropagation()">
+        <h2 id="submit-permit-title">Submit permit?</h2>
+        <p>This will send the permit to HSE for review. You can still view it from the permit list after submission.</p>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" (click)="cancelSubmitConfirmation()">Cancel</button>
+          <button type="button" (click)="submitPermit()">Submit permit</button>
+        </div>
+      </section>
+    </div>
+  }
 </section>

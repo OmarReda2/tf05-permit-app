@@ -66,7 +66,12 @@
       }
 
       <div class="form-actions">
-        <button type="submit" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save checklist item' }}</button>
+        <button type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="button-spinner" aria-hidden="true"></span>
+          }
+          {{ isSaving() ? 'Saving...' : 'Save checklist item' }}
+        </button>
         @if (editingChecklistItem()) {
           <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel</button>
         }

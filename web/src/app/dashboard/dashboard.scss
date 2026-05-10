@@ -239,6 +239,24 @@ h2 {
   color: var(--tf-heading);
 }
 
+.permit-type {
+  color: var(--tf-muted-strong);
+  font-weight: 600;
+}
+
+.permit-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  color: var(--tf-muted);
+  font-size: var(--tf-font-sm);
+}
+
+.permit-meta.secondary {
+  padding-top: 2px;
+}
+
 .error p {
   color: var(--tf-danger);
 }

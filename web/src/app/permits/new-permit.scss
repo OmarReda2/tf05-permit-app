@@ -144,6 +144,15 @@ textarea:focus {
   font-size: 0.86rem;
 }
 
+.loading-state {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-line.short {
+  width: min(420px, 72%);
+}
+
 .checklist {
   display: grid;
   gap: 10px;

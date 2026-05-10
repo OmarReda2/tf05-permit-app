@@ -76,6 +76,15 @@ h2 {
   color: var(--tf-danger);
 }
 
+.loading-state {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-line.short {
+  width: min(360px, 72%);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

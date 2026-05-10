@@ -13,6 +13,18 @@ import {
 import { type Permit } from '../permits/permit.model';
 import { PermitService } from '../permits/permit.service';
 
+type PendingQueueAction =
+  | { type: 'APPROVE'; permitId: string; title: string; message: string; confirmLabel: string; destructive: false }
+  | {
+      type: 'REJECT';
+      permitId: string;
+      reason: string;
+      title: string;
+      message: string;
+      confirmLabel: string;
+      destructive: true;
+    };
+
 @Component({
   selector: 'app-hse-approvals',
   imports: [RouterLink],
@@ -30,6 +42,8 @@ export class HseApprovals implements OnInit {
   protected readonly loadErrorMessage = signal('');
   protected readonly actionErrorMessage = signal('');
   protected readonly successMessage = signal('');
+  protected readonly pendingAction = signal<PendingQueueAction | null>(null);
+  protected readonly snackMessage = signal('');
 
   protected readonly statusLabel = statusLabel;
   protected readonly statusClass = statusClass;
@@ -74,7 +88,65 @@ export class HseApprovals implements OnInit {
       : 'No submitted permits are waiting for HSE approval.';
   }
 
-  protected async approvePermit(permitId: string): Promise<void> {
+  protected requestApprovePermit(permitId: string): void {
+    this.pendingAction.set({
+      type: 'APPROVE',
+      permitId,
+      title: this.isConstructionManager() ? 'Final approve permit?' : 'Approve permit as HSE?',
+      message: this.isConstructionManager()
+        ? 'This marks the permit as approved and active until expiry.'
+        : 'This sends the permit to Construction Manager review.',
+      confirmLabel: 'Approve',
+      destructive: false,
+    });
+  }
+
+  protected requestRejectPermit(permitId: string, reason: string): void {
+    const trimmedReason = reason.trim();
+
+    if (!trimmedReason) {
+      this.actionErrorMessage.set('Rejection reason is required.');
+      return;
+    }
+
+    this.pendingAction.set({
+      type: 'REJECT',
+      permitId,
+      reason: trimmedReason,
+      title: this.isConstructionManager()
+        ? 'Reject permit as Construction Manager?'
+        : 'Reject permit as HSE?',
+      message: 'This will mark the permit as rejected and record the reason in the event log.',
+      confirmLabel: 'Reject',
+      destructive: true,
+    });
+  }
+
+  protected cancelPendingAction(): void {
+    this.pendingAction.set(null);
+  }
+
+  protected async confirmPendingAction(): Promise<void> {
+    const pendingAction = this.pendingAction();
+
+    if (!pendingAction) {
+      return;
+    }
+
+    this.pendingAction.set(null);
+
+    if (pendingAction.type === 'APPROVE') {
+      await this.approvePermit(pendingAction.permitId);
+    } else {
+      await this.rejectPermit(pendingAction.permitId, pendingAction.reason);
+    }
+
+    if (this.successMessage()) {
+      this.showSnack(this.successMessage());
+    }
+  }
+
+  private async approvePermit(permitId: string): Promise<void> {
     const profile = this.userService.profile();
 
     if (!profile) {
@@ -103,7 +175,7 @@ export class HseApprovals implements OnInit {
     }
   }
 
-  protected async rejectPermit(permitId: string, reason: string): Promise<void> {
+  private async rejectPermit(permitId: string, reason: string): Promise<void> {
     const profile = this.userService.profile();
     const trimmedReason = reason.trim();
 
@@ -153,5 +225,14 @@ export class HseApprovals implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private showSnack(message: string): void {
+    this.snackMessage.set(message);
+    window.setTimeout(() => {
+      if (this.snackMessage() === message) {
+        this.snackMessage.set('');
+      }
+    }, 2600);
   }
 }

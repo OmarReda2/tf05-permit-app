@@ -47,6 +47,9 @@
       }
 
       <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="button-spinner" aria-hidden="true"></span>
+        }
         {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
       </button>
     </form>

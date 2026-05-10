@@ -1,0 +1,147 @@
+Implement Slice 16 only: Product UI/UX Refinement Pass 2.
+
+Before coding, read:
+1. AGENTS.md
+2. docs/mvp-requirements.md
+3. docs/decisions.md
+4. docs/slices.md
+
+Context:
+The app already has a better Google/Firebase-inspired direction, but it still needs refinement in loading states, login presentation, sidebar behavior, account menu behavior, action feedback, permit detail actions, and chip/card information hierarchy.
+
+Important:
+This is a UI/UX refinement slice only.
+Do not change business logic.
+Do not change Firestore models.
+Do not change Firestore rules.
+Do not change permit workflow.
+Do not add dependencies.
+Do not rewrite the app.
+Keep desktop, mobile, and dark mode in mind.
+
+Goals:
+Refine the app into a more mature, calm, polished internal product experience.
+
+1. Login screen refinement
+- The login page currently feels too plain and too empty.
+- Keep it simple, but add a subtle branded ambient background aligned with the app identity.
+- Use a soft background treatment:
+  - very light gradient and/or soft radial glow
+  - subtle pattern/shape if needed
+  - must remain eye-comfortable
+  - must work in dark mode too
+- Keep the login card clean and professional.
+- Do not turn it into a marketing landing page.
+- Do not add noisy graphics.
+
+2. Animated loading system
+- Replace plain loading text with a proper animated loading system.
+- Introduce consistent loading patterns:
+  - button loading spinner for actions like signing in / saving / submitting
+  - skeleton loading for cards, tables, detail sections
+  - optional subtle linear progress for page/section loading
+- Use calm professional animations.
+- Do not use playful or decorative animations.
+- Apply this to:
+  - login submit
+  - permit details load
+  - dashboard sections
+  - activity log
+  - permit list/table/cards
+  - forms where loading is relevant
+
+3. Sidebar refinement
+- Make the desktop sidebar sticky/fixed during scroll.
+- Replace the bottom “Collapse” button with a better Firebase-style collapse solution.
+- Use a top-area control for collapse/expand.
+- Support rail mode when collapsed:
+  - icons visible
+  - active item visible
+  - tooltips if simple
+- Collapse/expand must be smooth.
+- There must always be a clear way to expand again.
+- Keep mobile behavior separate: no collapsible desktop-style sidebar on mobile.
+
+4. Account control and dropdown refinement
+- Refine the account chip padding/alignment.
+- Add a visible dropdown indicator (e.g. chevron).
+- Dropdown menu should close when:
+  - clicking outside
+  - pressing Escape
+  - selecting a menu item
+- Keep the menu aligned and polished.
+- Maintain accessibility and keyboard friendliness.
+
+5. Chip/badge refinement
+- Current rounded status chips are still too colorful and distracting.
+- Reduce visual noise.
+- Introduce a calmer chip system:
+  - workflow status = highest emphasis
+  - expiry state = medium emphasis
+  - risk = lower emphasis
+  - checklist checked/unchecked = low emphasis but still descriptive
+- Use softer backgrounds, subtle borders, and readable text.
+- Avoid bright saturated colors.
+- Do not make every chip look equally important.
+
+6. Dashboard and permit cards refinement
+- Improve information hierarchy in dashboard cards and recent permit cards.
+- Reduce clutter.
+- Permit cards should feel more professional and easier to scan.
+- Recommended structure:
+  - permit number
+  - primary status
+  - key metadata
+  - secondary metadata
+  - clear action
+- Do not let every line compete visually.
+- Use spacing and hierarchy more than color.
+
+7. Permit table refinement
+- Keep desktop table calm and professional.
+- Reduce chip noise inside the table.
+- Improve scanability with spacing/alignment.
+- Keep filters compact and clean.
+- Do not let the table feel overly colorful.
+
+8. Permit details refinement
+- Reposition the Print / Save PDF action into a cleaner page action area.
+- Keep it visible but not awkwardly mixed into the title block.
+- Permit details page must use the new loading system.
+- Checklist checked/unchecked state must be semantically correct:
+  - checked should not be loud
+  - unchecked should not use green
+  - keep it calm and descriptive
+- Maintain good desktop and mobile layout.
+
+9. Action feedback system
+- Introduce polished feedback patterns:
+  - confirmation dialog for major actions (approve, reject, submit, logout if appropriate)
+  - snackbar/toast for success and short feedback
+  - inline validation for forms
+- Replace raw/basic alert-like behavior with smooth consistent UI feedback.
+- Keep it lightweight and dependency-free.
+
+10. General requirements
+- Preserve dark mode compatibility.
+- Preserve print styles.
+- Preserve role-aware navigation.
+- Preserve desktop and mobile responsiveness.
+- Do not change business logic.
+- Do not add dependencies.
+
+Before changing files:
+- Briefly audit what still feels unpolished.
+- Explain planned refinements.
+- List likely files to change.
+
+After changing files:
+- Summarize exactly what changed.
+- Confirm no business logic changed.
+- Confirm no Firestore model/rules changes.
+- Confirm no dependencies were added.
+- Mention desktop/mobile/dark-mode impact.
+- Run npm run build.
+
+Expected result:
+A calmer, more polished, more Google/Firebase-style product experience with a better login background, animated loading system, fixed smooth sidebar behavior, better account dropdown UX, less distracting chips, better permit card/table hierarchy, better permit detail actions, and a smooth dialog/snackbar feedback system.

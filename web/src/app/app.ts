@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -34,10 +34,14 @@ type ThemePreference = 'light' | 'dark';
 export class App {
   private readonly router = inject(Router);
   private readonly title = inject(Title);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
   protected readonly authService = inject(AuthService);
   protected readonly userService = inject(UserService);
   protected readonly currentUrl = signal(this.router.url);
   protected readonly sidebarCollapsed = signal(localStorage.getItem('tf05-sidebar') === 'collapsed');
+  protected readonly accountMenuOpen = signal(false);
+  protected readonly confirmLogoutOpen = signal(false);
+  protected readonly snackMessage = signal('');
   protected readonly theme = signal<ThemePreference>(
     localStorage.getItem('tf05-theme') === 'dark' ? 'dark' : 'light',
   );
@@ -108,6 +112,8 @@ export class App {
   }
 
   protected async logout(): Promise<void> {
+    this.confirmLogoutOpen.set(false);
+    this.closeAccountMenu();
     await this.authService.logout();
     this.userService.clearProfile();
     await this.router.navigateByUrl('/login');
@@ -143,13 +149,32 @@ export class App {
     });
   }
 
+  protected toggleAccountMenu(): void {
+    this.accountMenuOpen.update((open) => !open);
+  }
+
+  protected closeAccountMenu(): void {
+    this.accountMenuOpen.set(false);
+  }
+
+  protected requestLogout(): void {
+    this.closeAccountMenu();
+    this.confirmLogoutOpen.set(true);
+  }
+
+  protected cancelLogout(): void {
+    this.confirmLogoutOpen.set(false);
+  }
+
   protected toggleTheme(): void {
     this.theme.update((currentTheme) => {
       const nextTheme: ThemePreference = currentTheme === 'dark' ? 'light' : 'dark';
       localStorage.setItem('tf05-theme', nextTheme);
       this.applyTheme(nextTheme);
+      this.showSnack(nextTheme === 'dark' ? 'Dark mode enabled.' : 'Light mode enabled.');
       return nextTheme;
     });
+    this.closeAccountMenu();
   }
 
   protected themeLabel(): string {
@@ -158,6 +183,34 @@ export class App {
 
   private applyTheme(theme: ThemePreference): void {
     document.documentElement.dataset['theme'] = theme;
+  }
+
+  private showSnack(message: string): void {
+    this.snackMessage.set(message);
+    window.setTimeout(() => {
+      if (this.snackMessage() === message) {
+        this.snackMessage.set('');
+      }
+    }, 2600);
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected closeAccountMenuOnOutsideClick(event: MouseEvent): void {
+    if (!this.accountMenuOpen()) {
+      return;
+    }
+
+    const accountMenu = this.elementRef.nativeElement.querySelector('.account-menu');
+
+    if (accountMenu && !accountMenu.contains(event.target as Node)) {
+      this.closeAccountMenu();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closeOverlaysOnEscape(): void {
+    this.closeAccountMenu();
+    this.confirmLogoutOpen.set(false);
   }
 
   private setPageTitle(url: string): void {

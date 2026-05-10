@@ -30,8 +30,10 @@
     }
 
     @if (loading()) {
-      <section class="state-panel">
-        <p>Loading submitted permits...</p>
+      <section class="state-panel loading-state" aria-live="polite">
+        <span class="linear-progress" aria-hidden="true"></span>
+        <span class="skeleton-line"></span>
+        <span class="skeleton-line short"></span>
       </section>
     } @else if (loadErrorMessage()) {
       <section class="state-panel error">
@@ -75,7 +77,10 @@
                 <td>
                   <div class="actions">
                     <a [routerLink]="['/permits', permit.id]">View</a>
-                    <button type="button" [disabled]="processingPermitId() === permit.id" (click)="approvePermit(permit.id)">
+                    <button type="button" [disabled]="processingPermitId() === permit.id" (click)="requestApprovePermit(permit.id)">
+                      @if (processingPermitId() === permit.id) {
+                        <span class="button-spinner" aria-hidden="true"></span>
+                      }
                       Approve
                     </button>
                     <textarea #desktopReason rows="2" placeholder="Rejection reason"></textarea>
@@ -83,7 +88,7 @@
                       class="danger"
                       type="button"
                       [disabled]="processingPermitId() === permit.id"
-                      (click)="rejectPermit(permit.id, desktopReason.value)"
+                      (click)="requestRejectPermit(permit.id, desktopReason.value)"
                     >
                       Reject
                     </button>
@@ -114,7 +119,10 @@
             }
             <div class="actions">
               <a [routerLink]="['/permits', permit.id]">View details</a>
-              <button type="button" [disabled]="processingPermitId() === permit.id" (click)="approvePermit(permit.id)">
+              <button type="button" [disabled]="processingPermitId() === permit.id" (click)="requestApprovePermit(permit.id)">
+                @if (processingPermitId() === permit.id) {
+                  <span class="button-spinner" aria-hidden="true"></span>
+                }
                 Approve
               </button>
               <textarea #mobileReason rows="3" placeholder="Rejection reason"></textarea>
@@ -122,7 +130,7 @@
                 class="danger"
                 type="button"
                 [disabled]="processingPermitId() === permit.id"
-                (click)="rejectPermit(permit.id, mobileReason.value)"
+                (click)="requestRejectPermit(permit.id, mobileReason.value)"
               >
                 Reject
               </button>
@@ -131,5 +139,24 @@
         }
       </section>
     }
+  }
+
+  @if (pendingAction(); as action) {
+    <div class="dialog-backdrop" role="presentation" (click)="cancelPendingAction()">
+      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="queue-action-title" (click)="$event.stopPropagation()">
+        <h2 id="queue-action-title">{{ action.title }}</h2>
+        <p>{{ action.message }}</p>
+        <div class="dialog-actions">
+          <button type="button" class="quiet-button" (click)="cancelPendingAction()">Cancel</button>
+          <button type="button" [class.danger]="action.destructive" (click)="confirmPendingAction()">
+            {{ action.confirmLabel }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (snackMessage()) {
+    <p class="snackbar" role="status">{{ snackMessage() }}</p>
   }
 </section>

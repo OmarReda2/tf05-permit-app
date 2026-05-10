@@ -22,6 +22,9 @@
   padding: 16px 12px;
   border-right: 1px solid var(--tf-border);
   background: var(--tf-surface);
+  transition:
+    flex-basis 180ms ease,
+    padding 180ms ease;
 }
 
 .brand {
@@ -181,14 +184,13 @@
 }
 
 .sidebar-collapsed .brand {
-  justify-content: center;
+  display: grid;
   width: 100%;
 }
 
 .sidebar-collapsed .brand > div,
 .sidebar-collapsed .nav-group-label,
-.sidebar-collapsed .nav-label,
-.sidebar-collapsed .collapse-button {
+.sidebar-collapsed .nav-label {
   display: none;
 }
 
@@ -226,7 +228,7 @@
     display: none;
   }
 
-  .account-menu summary {
+  .account-trigger {
     padding: 4px;
   }
 

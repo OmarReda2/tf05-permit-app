@@ -2,8 +2,11 @@
   <a class="back-link no-print" routerLink="/permits">Back to permits</a>
 
   @if (loading()) {
-    <section class="state-panel">
-      <p>Loading permit...</p>
+    <section class="state-panel loading-state" aria-live="polite">
+      <span class="linear-progress" aria-hidden="true"></span>
+      <span class="skeleton-block"></span>
+      <span class="skeleton-block"></span>
+      <span class="skeleton-line"></span>
     </section>
   } @else if (errorMessage()) {
     <section class="state-panel error">
@@ -23,8 +26,15 @@
       </div>
       <div class="heading-actions">
         <span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span>
-        <button class="print-button no-print" type="button" (click)="printPermit(permit)">Print / Save PDF</button>
       </div>
+    </section>
+
+    <section class="page-action-bar no-print" aria-label="Permit actions">
+      <div>
+        <strong>Permit record</strong>
+        <span>Printable summary for site review and filing.</span>
+      </div>
+      <button class="print-button" type="button" (click)="printPermit(permit)">Print / Save PDF</button>
     </section>
 
     <section class="details-section">
@@ -62,7 +72,9 @@
         <div class="stack">
           @for (response of checklistResponses(); track response.id) {
             <article class="response-row">
-              <span class="check-state">{{ response.checked ? 'Checked' : 'Unchecked' }}</span>
+              <span [class]="response.checked ? 'check-state checked' : 'check-state unchecked'">
+                {{ response.checked ? 'Checked' : 'Unchecked' }}
+              </span>
               <div>
                 <strong>{{ response.itemTextSnapshot }}</strong>
                 <p>{{ response.required ? 'Required' : 'Optional' }}</p>
@@ -84,12 +96,17 @@
         }
         @if (canHseAct(permit)) {
           <div class="action-grid">
-            <button type="button" [disabled]="actionSaving()" (click)="approveByHse(permit.id)">Approve</button>
+            <button type="button" [disabled]="actionSaving()" (click)="requestApproveByHse(permit.id)">
+              @if (actionSaving()) {
+                <span class="button-spinner" aria-hidden="true"></span>
+              }
+              Approve
+            </button>
             <label>
               Rejection reason
               <textarea #rejectionReason rows="3" placeholder="Required when rejecting"></textarea>
             </label>
-            <button class="danger" type="button" [disabled]="actionSaving()" (click)="rejectByHse(permit.id, rejectionReason.value)">
+            <button class="danger" type="button" [disabled]="actionSaving()" (click)="requestRejectByHse(permit.id, rejectionReason.value)">
               Reject
             </button>
           </div>
@@ -108,7 +125,12 @@
         }
         @if (canConstructionManagerAct(permit)) {
           <div class="action-grid">
-            <button type="button" [disabled]="actionSaving()" (click)="approveByConstructionManager(permit.id)">Approve</button>
+            <button type="button" [disabled]="actionSaving()" (click)="requestApproveByConstructionManager(permit.id)">
+              @if (actionSaving()) {
+                <span class="button-spinner" aria-hidden="true"></span>
+              }
+              Approve
+            </button>
             <label>
               Rejection reason
               <textarea #cmRejectionReason rows="3" placeholder="Required when rejecting"></textarea>
@@ -117,7 +139,7 @@
               class="danger"
               type="button"
               [disabled]="actionSaving()"
-              (click)="rejectByConstructionManager(permit.id, cmRejectionReason.value)"
+              (click)="requestRejectByConstructionManager(permit.id, cmRejectionReason.value)"
             >
               Reject
             </button>
@@ -161,5 +183,24 @@
         </div>
       }
     </section>
+
+    @if (pendingAction(); as action) {
+      <div class="dialog-backdrop no-print" role="presentation" (click)="cancelPendingAction()">
+        <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="permit-action-title" (click)="$event.stopPropagation()">
+          <h2 id="permit-action-title">{{ action.title }}</h2>
+          <p>{{ action.message }}</p>
+          <div class="dialog-actions">
+            <button type="button" class="print-button" (click)="cancelPendingAction()">Cancel</button>
+            <button type="button" [class.danger]="action.destructive" (click)="confirmPendingAction()">
+              {{ action.confirmLabel }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+
+    @if (snackMessage()) {
+      <p class="snackbar no-print" role="status">{{ snackMessage() }}</p>
+    }
   }
 </section>
