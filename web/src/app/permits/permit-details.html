@@ -35,7 +35,7 @@
         <div><dt>Requester role</dt><dd>{{ permit.requesterRole }}</dd></div>
         <div><dt>Contractor / trade</dt><dd>{{ permit.contractorOrTrade }}</dd></div>
         <div><dt>Work location</dt><dd>{{ permit.workLocation }}</dd></div>
-        <div><dt>Risk level</dt><dd>{{ permit.riskLevel }}</dd></div>
+        <div><dt>Risk level</dt><dd><span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></dd></div>
         <div><dt>Number of workers</dt><dd>{{ permit.numberOfWorkers }}</dd></div>
         <div><dt>Duration</dt><dd>{{ permit.durationHours }} hours</dd></div>
         <div><dt>Start time</dt><dd>{{ formatDateTime(permit.startTime) }}</dd></div>
@@ -45,8 +45,36 @@
       </dl>
     </section>
 
+    <section class="details-section">
+      <h2>Work details</h2>
+      <dl class="details-grid single">
+        <div><dt>Scope of work</dt><dd>{{ permit.scopeOfWork }}</dd></div>
+        <div><dt>Hazards</dt><dd>{{ permit.hazards || 'None provided' }}</dd></div>
+        <div><dt>Equipment / plant</dt><dd>{{ permit.equipment || 'None provided' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="details-section">
+      <h2>Checklist responses</h2>
+      @if (checklistResponses().length === 0) {
+        <p class="muted">No checklist responses found.</p>
+      } @else {
+        <div class="stack">
+          @for (response of checklistResponses(); track response.id) {
+            <article class="response-row">
+              <span class="check-state">{{ response.checked ? 'Checked' : 'Unchecked' }}</span>
+              <div>
+                <strong>{{ response.itemTextSnapshot }}</strong>
+                <p>{{ response.required ? 'Required' : 'Optional' }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
     @if (canHseAct(permit) || actionContext() === 'HSE') {
-      <section class="details-section hse-actions no-print">
+      <section class="details-section review-actions no-print">
         <h2>HSE Review</h2>
         @if (actionSuccessMessage()) {
           <p class="success-message">{{ actionSuccessMessage() }}</p>
@@ -70,7 +98,7 @@
     }
 
     @if (canConstructionManagerAct(permit) || actionContext() === 'CM') {
-      <section class="details-section hse-actions no-print">
+      <section class="details-section review-actions no-print">
         <h2>Construction Manager Review</h2>
         @if (actionSuccessMessage()) {
           <p class="success-message">{{ actionSuccessMessage() }}</p>
@@ -112,34 +140,6 @@
           <div><dt>Rejection reason</dt><dd>{{ permit.rejectionReason }}</dd></div>
         }
       </dl>
-    </section>
-
-    <section class="details-section">
-      <h2>Work details</h2>
-      <dl class="details-grid single">
-        <div><dt>Scope of work</dt><dd>{{ permit.scopeOfWork }}</dd></div>
-        <div><dt>Hazards</dt><dd>{{ permit.hazards || 'None provided' }}</dd></div>
-        <div><dt>Equipment / plant</dt><dd>{{ permit.equipment || 'None provided' }}</dd></div>
-      </dl>
-    </section>
-
-    <section class="details-section">
-      <h2>Checklist responses</h2>
-      @if (checklistResponses().length === 0) {
-        <p class="muted">No checklist responses found.</p>
-      } @else {
-        <div class="stack">
-          @for (response of checklistResponses(); track response.id) {
-            <article class="response-row">
-              <span class="check-state">{{ response.checked ? 'Checked' : 'Unchecked' }}</span>
-              <div>
-                <strong>{{ response.itemTextSnapshot }}</strong>
-                <p>{{ response.required ? 'Required' : 'Optional' }}</p>
-              </div>
-            </article>
-          }
-        </div>
-      }
     </section>
 
     <section class="details-section">

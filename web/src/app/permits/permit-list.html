@@ -35,8 +35,10 @@
   </div>
 
   @if (loading()) {
-    <section class="state-panel">
-      <p>Loading permits...</p>
+    <section class="state-panel loading-state" aria-live="polite">
+      <span class="linear-progress" aria-hidden="true"></span>
+      <span class="skeleton-line"></span>
+      <span class="skeleton-line short"></span>
     </section>
   } @else if (errorMessage()) {
     <section class="state-panel error">
@@ -58,6 +60,7 @@
             <th>Type</th>
             <th>Location</th>
             <th>Requester</th>
+            <th>Risk</th>
             <th>Status</th>
             <th>Start</th>
             <th>Expiry</th>
@@ -72,6 +75,7 @@
               <td>{{ permit.permitTypeNameSnapshot }}</td>
               <td>{{ permit.workLocation }}</td>
               <td>{{ permit.requestedByName }}</td>
+              <td><span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></td>
               <td><span [attr.class]="'status-badge ' + statusClass(permit.status)">{{ statusLabel(permit.status) }}</span></td>
               <td>{{ formatDateTime(permit.startTime) }}</td>
               <td>{{ formatDateTime(permit.expiryTime) }}</td>
@@ -93,6 +97,7 @@
           <p>{{ permit.permitTypeNameSnapshot }}</p>
           <p>{{ permit.workLocation }}</p>
           <p>Requester: {{ permit.requestedByName }}</p>
+          <p>Risk: <span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></p>
           <p>Start: {{ formatDateTime(permit.startTime) }}</p>
           <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
           <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>

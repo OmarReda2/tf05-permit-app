@@ -1,7 +1,18 @@
-@if (isLoginRoute()) {
+@if (isBareRoute()) {
   <router-outlet />
+} @else if (!shellReady()) {
+  <main class="shell-loading" aria-live="polite">
+    <div class="loading-card">
+      <span class="brand-mark" aria-hidden="true">TF</span>
+      <div>
+        <p class="brand-kicker">TF-05 Permit App</p>
+        <p class="loading-title">Preparing your workspace</p>
+      </div>
+      <span class="linear-progress" aria-hidden="true"></span>
+    </div>
+  </main>
 } @else {
-  <div class="app-shell">
+  <div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
     <aside class="sidebar" aria-label="Primary navigation">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">TF</span>
@@ -11,20 +22,27 @@
         </div>
       </div>
 
-      <nav class="nav-list">
-        @for (item of navItems; track item.path) {
-          @if (canShowNavItem(item)) {
-            <a
-              class="nav-link"
-              [routerLink]="item.path"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: item.path !== '/permits' }"
-            >
-              {{ item.label }}
-            </a>
+      <nav class="nav-list" aria-label="Product navigation">
+        @for (group of navGroups; track group.label) {
+          @if (canShowNavGroup(group)) {
+            <section class="nav-group">
+              <p class="nav-group-label">{{ group.label }}</p>
+              @for (item of group.items; track item.path) {
+                @if (canShowNavItem(item)) {
+                  <a class="nav-link" [class.active]="isNavActive(item)" [routerLink]="item.path">
+                    <span [class]="'nav-icon nav-icon-' + item.icon" aria-hidden="true"></span>
+                    <span class="nav-label">{{ item.label }}</span>
+                  </a>
+                }
+              }
+            </section>
           }
         }
       </nav>
+
+      <button type="button" class="collapse-button" (click)="toggleSidebar()">
+        {{ sidebarCollapsed() ? 'Expand' : 'Collapse' }}
+      </button>
     </aside>
 
     <div class="main-column">
@@ -36,12 +54,28 @@
 
         <div class="topbar-actions">
           @if (userService.profile(); as profile) {
-            <span class="user-email">{{ profile.displayName }}</span>
-            <span class="role-badge">{{ profile.role }}</span>
+            <details class="account-menu">
+              <summary>
+                <span class="account-avatar" aria-hidden="true">{{ profile.displayName.slice(0, 1) }}</span>
+                <span class="account-text">
+                  <span class="account-name">{{ profile.displayName }}</span>
+                  <span class="role-badge">{{ profile.role }}</span>
+                </span>
+              </summary>
+              <div class="account-panel">
+                <p class="account-email">{{ profile.email }}</p>
+                <a routerLink="/profile">Profile</a>
+                @for (item of secondaryAccountItems(); track item.path) {
+                  <a [routerLink]="item.path">{{ item.label }}</a>
+                }
+                <button type="button" (click)="toggleTheme()">{{ themeLabel() }}</button>
+                <button type="button" (click)="logout()">Logout</button>
+              </div>
+            </details>
           } @else if (authService.user()?.email) {
             <span class="user-email">{{ authService.user()?.email }}</span>
+            <button type="button" class="quiet-button" (click)="logout()">Logout</button>
           }
-          <button type="button" class="logout-button" (click)="logout()">Logout</button>
         </div>
       </header>
 
@@ -51,17 +85,11 @@
     </div>
 
     <nav class="bottom-nav" aria-label="Primary navigation">
-      @for (item of navItems; track item.path) {
-        @if (canShowNavItem(item) && item.showInMobile !== false) {
-          <a
-            class="bottom-nav-link"
-            [routerLink]="item.path"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: item.path !== '/permits' }"
-          >
-            {{ item.label }}
-          </a>
-        }
+      @for (item of mobileNavItems(); track item.path) {
+        <a class="bottom-nav-link" [class.active]="isNavActive(item)" [routerLink]="item.path">
+          <span [class]="'nav-icon nav-icon-' + item.icon" aria-hidden="true"></span>
+          <span>{{ item.label }}</span>
+        </a>
       }
     </nav>
   </div>

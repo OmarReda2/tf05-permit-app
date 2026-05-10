@@ -1,4 +1,5 @@
 import { type Permit, type PermitStatus } from './permit.model';
+import { type RiskLevel } from '../admin/permit-type.model';
 
 export type PermitExpiryState =
   | 'ACTIVE'
@@ -111,6 +112,19 @@ export function expiryStateClass(permit: Permit): string {
       return 'expiry-muted';
     case 'CLOSED':
       return 'expiry-closed';
+  }
+}
+
+export function riskClass(riskLevel: RiskLevel | string): string {
+  switch (riskLevel) {
+    case 'LOW':
+      return 'risk-low';
+    case 'MEDIUM':
+      return 'risk-medium';
+    case 'HIGH':
+      return 'risk-high';
+    default:
+      return 'risk-medium';
   }
 }
 

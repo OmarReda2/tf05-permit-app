@@ -162,7 +162,11 @@
         </div>
         <div>
           <dt>Risk level</dt>
-          <dd>{{ permitForm.controls.riskLevel.value }}</dd>
+          <dd>
+            <span [attr.class]="'risk-badge ' + riskClass(permitForm.controls.riskLevel.value)">
+              {{ permitForm.controls.riskLevel.value }}
+            </span>
+          </dd>
         </div>
         <div>
           <dt>Checklist</dt>

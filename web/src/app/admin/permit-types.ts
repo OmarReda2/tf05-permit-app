@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { riskClass } from '../permits/permit-display';
 import { PermitTypesService } from './permit-types.service';
 import { riskLevels, type PermitType, type PermitTypeInput } from './permit-type.model';
 
@@ -15,6 +16,7 @@ export class PermitTypes implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   protected readonly permitTypesService = inject(PermitTypesService);
   protected readonly riskLevels = riskLevels;
+  protected readonly riskClass = riskClass;
   protected readonly editingPermitType = signal<PermitType | null>(null);
   protected readonly errorMessage = signal('');
   protected readonly isSaving = signal(false);

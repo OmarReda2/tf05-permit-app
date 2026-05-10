@@ -5,8 +5,14 @@
 }
 
 .back-link {
+  width: fit-content;
   color: var(--tf-primary);
-  font-weight: 700;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
 }
 
 .page-heading,
@@ -21,10 +27,9 @@
 
 .page-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  border-left: 4px solid var(--tf-accent);
 }
 
 .heading-actions {
@@ -40,85 +45,56 @@
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  color: var(--tf-accent);
-  font-size: 0.8rem;
-  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--tf-primary);
+  font-size: 0.76rem;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
 h1,
 h2 {
   margin: 0;
-  color: var(--tf-text);
-  line-height: 1.2;
+  color: var(--tf-heading);
+  line-height: 1.25;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 1.9rem;
+  font-weight: 600;
 }
 
 h2 {
   margin-bottom: 18px;
-  font-size: 1.2rem;
+  font-size: 1.08rem;
+  font-weight: 600;
 }
 
 .page-subtitle {
-  margin: 10px 0 0;
+  max-width: 680px;
+  margin: 8px 0 0;
   color: var(--tf-muted);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-.status-badge,
 .check-state {
-  display: inline-block;
-  padding: 5px 9px;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 1px solid #cce8d2;
   border-radius: 999px;
-  background: var(--tf-info-soft);
-  color: var(--tf-info);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.expiry-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.status-approved,
-.expiry-active {
   background: var(--tf-success-soft);
   color: var(--tf-success);
-}
-
-.status-rejected,
-.status-expired,
-.expiry-expired {
-  background: var(--tf-danger-soft);
-  color: var(--tf-danger);
-}
-
-.status-pending,
-.expiry-pending,
-.expiry-warning {
-  background: var(--tf-warning-soft);
-  color: var(--tf-warning);
-}
-
-.status-closed,
-.expiry-muted,
-.expiry-closed {
-  background: #f1f5f9;
-  color: #475569;
+  font-size: 0.76rem;
+  font-weight: 600;
 }
 
 .details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 14px 18px;
   margin: 0;
 }
 
@@ -129,12 +105,13 @@ h2 {
 .details-grid div {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
 dt {
   color: var(--tf-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.74rem;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -154,14 +131,19 @@ dd {
   display: grid;
   gap: 6px;
   padding: 12px;
-  border: 1px solid var(--tf-border);
+  border: 1px solid var(--tf-border-subtle);
   border-radius: var(--tf-radius);
-  background: var(--tf-surface-raised);
+  background: var(--tf-surface-subtle);
 }
 
 .response-row {
   grid-template-columns: auto 1fr;
   align-items: start;
+}
+
+.response-row strong,
+.event-row strong {
+  color: var(--tf-heading);
 }
 
 .response-row p,
@@ -177,7 +159,7 @@ dd {
   color: var(--tf-danger);
 }
 
-.hse-actions {
+.review-actions {
   display: grid;
   gap: 12px;
 }
@@ -185,34 +167,39 @@ dd {
 .action-grid {
   display: grid;
   gap: 10px;
-  max-width: 520px;
+  max-width: 540px;
 }
 
 label {
   display: grid;
   gap: 6px;
-  color: var(--tf-primary);
-  font-size: 0.9rem;
-  font-weight: 700;
+  color: var(--tf-muted-strong);
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 
 button,
 textarea {
-  border: 1px solid #b8c2d0;
-  border-radius: var(--tf-radius);
-  font: inherit;
+  border: 1px solid var(--tf-border);
+  border-radius: var(--tf-radius-sm);
 }
 
 button {
   min-height: 40px;
-  padding: 9px 12px;
+  padding: 8px 12px;
   background: var(--tf-primary);
   color: #ffffff;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--tf-primary-strong);
+  background: var(--tf-primary-strong);
 }
 
 button.danger {
+  border-color: var(--tf-danger);
   background: var(--tf-danger);
 }
 
@@ -228,7 +215,7 @@ button:disabled {
 
 textarea {
   width: 100%;
-  padding: 9px 10px;
+  padding: 10px 12px;
   resize: vertical;
 }
 
@@ -250,17 +237,24 @@ textarea {
   .page-heading,
   .details-section,
   .state-panel {
-    padding: 20px;
+    padding: 18px;
   }
 
   .page-heading {
-    align-items: flex-start;
     flex-direction: column;
+  }
+
+  .heading-actions {
+    justify-content: flex-start;
   }
 
   .details-grid,
   .response-row {
     grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 1.55rem;
   }
 }
 
@@ -286,6 +280,7 @@ textarea {
     border: 0;
     border-radius: 0;
     background: #ffffff;
+    box-shadow: none;
   }
 
   .page-heading {
@@ -338,6 +333,8 @@ textarea {
   }
 
   .status-badge,
+  .expiry-badge,
+  .risk-badge,
   .check-state {
     border: 1px solid #9ca3af;
     background: #ffffff;
@@ -351,5 +348,6 @@ textarea {
     border: 0;
     border-top: 1px solid #d1d5db;
     border-radius: 0;
+    background: #ffffff;
   }
 }

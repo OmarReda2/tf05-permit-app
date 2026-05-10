@@ -6,6 +6,7 @@ import {
   expiryState,
   expiryStateClass,
   formatDateTime,
+  riskClass,
   statusClass,
   statusLabel,
 } from '../permits/permit-display';
@@ -34,6 +35,7 @@ export class HseApprovals implements OnInit {
   protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
   protected readonly expiryStateClass = expiryStateClass;
+  protected readonly riskClass = riskClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {

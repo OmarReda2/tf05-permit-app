@@ -7,6 +7,7 @@ import {
   expiryStateClass,
   expiryStateKey,
   formatDateTime,
+  riskClass,
   type PermitExpiryState,
   statusClass,
   statusLabel,
@@ -37,6 +38,7 @@ export class PermitList implements OnInit {
   protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
   protected readonly expiryStateClass = expiryStateClass;
+  protected readonly riskClass = riskClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {

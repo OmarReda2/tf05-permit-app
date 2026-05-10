@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
   styles: `
     .admin-page {
       max-width: 720px;
-      padding: 28px;
+      padding: 24px;
       border: 1px solid var(--tf-border);
       border-radius: var(--tf-radius);
       background: var(--tf-surface);
@@ -28,16 +28,17 @@ import { RouterLink } from '@angular/router';
 
     .eyebrow {
       margin: 0 0 10px;
-      color: var(--tf-accent);
-      font-size: 0.8rem;
-      font-weight: 700;
+      color: var(--tf-primary);
+      font-size: 0.76rem;
+      font-weight: 600;
       text-transform: uppercase;
     }
 
     h1 {
       margin: 0;
-      color: var(--tf-text);
-      font-size: 2rem;
+      color: var(--tf-heading);
+      font-size: 1.9rem;
+      font-weight: 600;
       line-height: 1.2;
     }
 
@@ -58,11 +59,16 @@ import { RouterLink } from '@angular/router';
       min-height: 42px;
       align-items: center;
       padding: 10px 14px;
-      border-radius: var(--tf-radius);
+      border: 1px solid var(--tf-primary);
+      border-radius: var(--tf-radius-sm);
       background: var(--tf-primary);
       color: #ffffff;
-      font-weight: 700;
+      font-weight: 600;
       text-decoration: none;
+    }
+
+    a:hover {
+      background: var(--tf-primary-strong);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

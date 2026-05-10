@@ -98,7 +98,11 @@
                     <span>{{ permitType.description }}</span>
                   }
                 </td>
-                <td>{{ permitType.defaultRiskLevel }}</td>
+                <td>
+                  <span [attr.class]="'risk-badge ' + riskClass(permitType.defaultRiskLevel)">
+                    {{ permitType.defaultRiskLevel }}
+                  </span>
+                </td>
                 <td>{{ permitType.defaultDurationHours }}-{{ permitType.maxDurationHours }}h</td>
                 <td>
                   <span class="status-badge" [class.inactive]="!permitType.active">

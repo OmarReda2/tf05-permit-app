@@ -66,7 +66,7 @@
                 <td>{{ permit.permitTypeNameSnapshot }}</td>
                 <td>{{ permit.workLocation }}</td>
                 <td>{{ permit.requestedByName }}</td>
-                <td>{{ permit.riskLevel }}</td>
+                <td><span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></td>
                 <td>{{ formatDateTime(permit.startTime) }}</td>
                 <td>{{ formatDateTime(permit.expiryTime) }}</td>
                 @if (isConstructionManager()) {
@@ -105,7 +105,7 @@
             <p>{{ permit.permitTypeNameSnapshot }}</p>
             <p>Location: {{ permit.workLocation }}</p>
             <p>Requester: {{ permit.requestedByName }}</p>
-            <p>Risk: {{ permit.riskLevel }}</p>
+            <p>Risk: <span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></p>
             <p>Start: {{ formatDateTime(permit.startTime) }}</p>
             <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
             <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>

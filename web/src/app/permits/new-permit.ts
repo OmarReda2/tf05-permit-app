@@ -7,6 +7,7 @@ import { type ChecklistItem } from '../admin/checklist-item.model';
 import { type PermitType, riskLevels, type RiskLevel } from '../admin/permit-type.model';
 import { PermitTypesService } from '../admin/permit-types.service';
 import { UserService } from '../auth/user.service';
+import { riskClass } from './permit-display';
 import { PermitService } from './permit.service';
 import { type CreatePermitInput } from './permit.model';
 
@@ -25,6 +26,7 @@ export class NewPermit implements OnInit {
   protected readonly permitTypesService = inject(PermitTypesService);
   protected readonly userService = inject(UserService);
   protected readonly riskLevels = riskLevels;
+  protected readonly riskClass = riskClass;
   protected readonly selectedPermitTypeId = signal('');
   protected readonly checkedItems = signal<Record<string, boolean>>({});
   protected readonly errorMessage = signal('');

@@ -6,7 +6,9 @@ import { type UserRole } from '../auth/user-profile.model';
 import {
   expiryState,
   expiryStateClass,
+  expiryStateKey,
   formatDateTime,
+  riskClass,
   statusClass,
   statusLabel,
 } from '../permits/permit-display';
@@ -30,6 +32,12 @@ interface DashboardSummary {
   rejected: number;
 }
 
+interface DashboardSegment {
+  label: string;
+  value: number;
+  className: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   imports: [RouterLink],
@@ -47,11 +55,26 @@ export class Dashboard implements OnInit {
   protected readonly summary = computed(() => this.calculateSummary(this.permits()));
   protected readonly cards = computed(() => this.cardsForRole(this.summary(), this.currentRole()));
   protected readonly recentPermits = computed(() => this.permits().slice(0, 5));
+  protected readonly statusSegments = computed<DashboardSegment[]>(() => {
+    const summary = this.summary();
+    return [
+      { label: 'Submitted', value: summary.pendingHse, className: 'segment-submitted' },
+      { label: 'HSE approved', value: summary.pendingConstructionManager, className: 'segment-hse' },
+      { label: 'Approved', value: summary.approved, className: 'segment-approved' },
+      { label: 'Rejected', value: summary.rejected, className: 'segment-rejected' },
+    ].filter((segment) => segment.value > 0);
+  });
+  protected readonly expiringSoonPermits = computed(() =>
+    this.permits()
+      .filter((permit) => expiryStateKey(permit) === 'EXPIRING_SOON')
+      .slice(0, 4),
+  );
 
   protected readonly statusLabel = statusLabel;
   protected readonly statusClass = statusClass;
   protected readonly expiryState = expiryState;
   protected readonly expiryStateClass = expiryStateClass;
+  protected readonly riskClass = riskClass;
   protected readonly formatDateTime = formatDateTime;
 
   async ngOnInit(): Promise<void> {
@@ -68,6 +91,11 @@ export class Dashboard implements OnInit {
     }
 
     return 'Permit summary for your role';
+  }
+
+  protected segmentWidth(value: number): number {
+    const total = this.summary().total;
+    return total > 0 ? Math.max(6, Math.round((value / total) * 100)) : 0;
   }
 
   private async loadPermits(): Promise<void> {

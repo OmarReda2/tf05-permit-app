@@ -8,8 +8,13 @@
   </section>
 
   @if (loading()) {
-    <section class="state-panel">
-      <p>Loading dashboard...</p>
+    <section class="state-panel loading-state" aria-live="polite">
+      <span class="linear-progress" aria-hidden="true"></span>
+      <div class="skeleton-grid">
+        <span class="skeleton-block"></span>
+        <span class="skeleton-block"></span>
+        <span class="skeleton-block"></span>
+      </div>
     </section>
   } @else if (errorMessage()) {
     <section class="state-panel error">
@@ -33,6 +38,47 @@
       }
     </section>
 
+    <section class="insight-grid">
+      <article class="insight-card">
+        <div class="section-heading">
+          <h2>Status breakdown</h2>
+        </div>
+        <div class="breakdown-bar" aria-label="Permit status breakdown">
+          @for (segment of statusSegments(); track segment.label) {
+            <span
+              [class]="segment.className"
+              [style.width.%]="segmentWidth(segment.value)"
+              [title]="segment.label + ': ' + segment.value"
+            ></span>
+          }
+        </div>
+        <div class="legend">
+          @for (segment of statusSegments(); track segment.label) {
+            <span><i [class]="segment.className"></i>{{ segment.label }} {{ segment.value }}</span>
+          }
+        </div>
+      </article>
+
+      <article class="insight-card">
+        <div class="section-heading">
+          <h2>Expiring soon</h2>
+          <a routerLink="/permits">Open permits</a>
+        </div>
+        @if (expiringSoonPermits().length === 0) {
+          <p class="muted">No approved permits are expiring within 2 hours.</p>
+        } @else {
+          <div class="compact-list">
+            @for (permit of expiringSoonPermits(); track permit.id) {
+              <a [routerLink]="['/permits', permit.id]">
+                <strong>{{ permit.permitNumber }}</strong>
+                <span>{{ formatDateTime(permit.expiryTime) }}</span>
+              </a>
+            }
+          </div>
+        }
+      </article>
+    </section>
+
     <section class="recent-section">
       <div class="section-heading">
         <h2>Recent Permits</h2>
@@ -48,6 +94,7 @@
             </div>
             <p>{{ permit.permitTypeNameSnapshot }}</p>
             <p>Location: {{ permit.workLocation }}</p>
+            <p>Risk: <span [attr.class]="'risk-badge ' + riskClass(permit.riskLevel)">{{ permit.riskLevel }}</span></p>
             <p>Expiry state: <span [attr.class]="'expiry-badge ' + expiryStateClass(permit)">{{ expiryState(permit) }}</span></p>
             <p>Expiry: {{ formatDateTime(permit.expiryTime) }}</p>
             <a [routerLink]="['/permits', permit.id]">View details</a>

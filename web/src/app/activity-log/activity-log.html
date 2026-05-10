@@ -8,8 +8,11 @@
   </section>
 
   @if (loading()) {
-    <section class="state-panel">
-      <p>Loading activity...</p>
+    <section class="state-panel loading-state" aria-live="polite">
+      <span class="linear-progress" aria-hidden="true"></span>
+      <span class="skeleton-line"></span>
+      <span class="skeleton-line"></span>
+      <span class="skeleton-line short"></span>
     </section>
   } @else if (errorMessage()) {
     <section class="state-panel error">

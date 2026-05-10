@@ -1,45 +1,33 @@
 .dashboard-page {
   display: grid;
-  gap: 20px;
-  max-width: 1160px;
+  gap: 22px;
 }
 
-.page-heading,
+.page-heading {
+  max-width: 840px;
+}
+
 .state-panel,
 .summary-card,
 .recent-section,
-.permit-card {
-  padding: 24px;
+.permit-card,
+.insight-card {
   border: 1px solid var(--tf-border);
   border-radius: var(--tf-radius);
   background: var(--tf-surface);
   box-shadow: var(--tf-shadow-sm);
 }
 
-.page-heading {
-  position: relative;
-  overflow: hidden;
-  border-color: rgba(24, 59, 86, 0.12);
-  background:
-    linear-gradient(135deg, rgba(24, 59, 86, 0.96), rgba(31, 41, 51, 0.92)),
-    var(--tf-panel);
-}
-
-.page-heading::after {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 180px;
-  height: 100%;
-  background: linear-gradient(135deg, transparent, rgba(245, 158, 11, 0.20));
-  content: '';
-  pointer-events: none;
+.state-panel,
+.recent-section,
+.insight-card {
+  padding: 22px;
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  color: var(--tf-accent);
-  font-size: 0.8rem;
+  margin: 0 0 8px;
+  color: var(--tf-primary);
+  font-size: var(--tf-font-xs);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -47,71 +35,83 @@
 h1,
 h2 {
   margin: 0;
-  color: var(--tf-text);
-  line-height: 1.2;
+  color: var(--tf-heading);
+  line-height: 1.25;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: var(--tf-font-2xl);
+  font-weight: 600;
 }
 
 h2 {
-  font-size: 1.2rem;
+  font-size: var(--tf-font-lg);
+  font-weight: 600;
 }
 
 .page-heading p,
 .state-panel p,
 .summary-card p,
 .summary-card span,
-.permit-card p {
+.permit-card p,
+.muted {
   margin: 0;
   color: var(--tf-muted);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .page-heading p:last-child {
-  margin-top: 12px;
-  color: rgba(255, 255, 255, 0.74);
+  margin-top: 8px;
 }
 
-.page-heading h1 {
-  color: #ffffff;
+.loading-state {
+  display: grid;
+  gap: 18px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .summary-card {
-  position: relative;
   display: grid;
-  gap: 10px;
-  overflow: hidden;
+  gap: 8px;
+  padding: 18px;
 }
 
-.summary-card::before {
-  width: 40px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--tf-accent);
-  content: '';
+.summary-card:hover {
+  border-color: var(--tf-border-strong);
 }
 
 .summary-card p {
-  color: var(--tf-primary);
-  font-weight: 700;
+  color: var(--tf-muted-strong);
+  font-size: var(--tf-font-sm);
+  font-weight: 600;
 }
 
 .summary-card strong {
-  color: var(--tf-text);
-  font-size: 2rem;
+  color: var(--tf-heading);
+  font-size: 1.9rem;
+  font-weight: 600;
   line-height: 1;
 }
 
 .summary-card span {
-  font-size: 0.9rem;
+  font-size: var(--tf-font-sm);
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 12px;
 }
 
 .section-heading {
@@ -123,9 +123,100 @@ h2 {
   margin-bottom: 16px;
 }
 
+.section-heading a,
+.permit-card a,
+.state-panel a,
+.compact-list a {
+  color: var(--tf-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.section-heading a:hover,
+.permit-card a:hover,
+.state-panel a:hover,
+.compact-list a:hover {
+  text-decoration: underline;
+}
+
+.breakdown-bar {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--tf-border-subtle);
+}
+
+.breakdown-bar span {
+  min-width: 6%;
+}
+
+.segment-submitted {
+  background: var(--tf-warning);
+}
+
+.segment-hse {
+  background: var(--tf-info);
+}
+
+.segment-approved {
+  background: var(--tf-success);
+}
+
+.segment-rejected {
+  background: var(--tf-danger);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 14px;
+  color: var(--tf-muted);
+  font-size: var(--tf-font-sm);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.compact-list {
+  display: grid;
+  gap: 8px;
+}
+
+.compact-list a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--tf-border-subtle);
+}
+
+.compact-list a:last-child {
+  border-bottom: 0;
+}
+
+.compact-list strong {
+  color: var(--tf-heading);
+}
+
+.compact-list span {
+  color: var(--tf-muted);
+  font-size: var(--tf-font-sm);
+}
+
 .recent-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
 }
 
@@ -133,7 +224,6 @@ h2 {
   display: grid;
   gap: 8px;
   padding: 16px;
-  border-color: var(--tf-border);
   background: var(--tf-surface-raised);
 }
 
@@ -145,74 +235,39 @@ h2 {
   justify-content: space-between;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: var(--tf-info-soft);
-  color: var(--tf-info);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.status-approved,
-.expiry-active {
-  background: var(--tf-success-soft);
-  color: var(--tf-success);
-}
-
-.status-rejected,
-.status-expired,
-.expiry-expired {
-  background: var(--tf-danger-soft);
-  color: var(--tf-danger);
-}
-
-.status-pending,
-.expiry-pending,
-.expiry-warning {
-  background: var(--tf-warning-soft);
-  color: var(--tf-warning);
-}
-
-.status-closed,
-.expiry-muted,
-.expiry-closed {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.expiry-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-a {
-  color: var(--tf-primary);
-  font-weight: 700;
+.card-heading strong {
+  color: var(--tf-heading);
 }
 
 .error p {
   color: var(--tf-danger);
 }
 
+@media (max-width: 860px) {
+  .insight-grid,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 760px) {
-  .page-heading,
   .state-panel,
+  .recent-section,
   .summary-card,
-  .recent-section {
-    padding: 20px;
+  .insight-card {
+    padding: 18px;
   }
 
   h1 {
-    font-size: 1.7rem;
+    font-size: 1.55rem;
   }
 
   .summary-grid,
   .recent-list {
     grid-template-columns: 1fr;
+  }
+
+  .compact-list a {
+    display: grid;
   }
 }

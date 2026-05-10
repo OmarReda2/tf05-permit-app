@@ -8,10 +8,8 @@
   </div>
 
   <form class="checklist-form" [formGroup]="checklistItemForm" (ngSubmit)="saveChecklistItem()" novalidate>
-    <h2>{{ formTitle() }}</h2>
-
-    <div class="form-grid">
-      <div class="field field-wide">
+    <section class="selector-section">
+      <div class="field">
         <label for="permitTypeId">Permit type</label>
         <select
           id="permitTypeId"
@@ -28,44 +26,52 @@
           <p class="field-error">Permit type is required.</p>
         }
       </div>
+    </section>
 
-      <div class="field field-wide">
-        <label for="text">Checklist text</label>
-        <textarea id="text" rows="3" formControlName="text"></textarea>
-        @if (checklistItemForm.controls.text.invalid && checklistItemForm.controls.text.touched) {
-          <p class="field-error">Checklist text is required.</p>
-        }
+    <section class="editor-section">
+      <h2>{{ formTitle() }}</h2>
+
+      <div class="form-grid">
+        <div class="field field-wide">
+          <label for="text">Checklist text</label>
+          <textarea id="text" rows="3" formControlName="text"></textarea>
+          @if (checklistItemForm.controls.text.invalid && checklistItemForm.controls.text.touched) {
+            <p class="field-error">Checklist text is required.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="order">Order</label>
+          <input id="order" type="number" min="1" formControlName="order" />
+          @if (checklistItemForm.controls.order.invalid && checklistItemForm.controls.order.touched) {
+            <p class="field-error">Order must be 1 or greater.</p>
+          }
+        </div>
+
+        <div class="toggle-grid">
+          <label class="checkbox-field">
+            <input type="checkbox" formControlName="required" />
+            Required
+          </label>
+
+          <label class="checkbox-field">
+            <input type="checkbox" formControlName="active" />
+            Active
+          </label>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="order">Order</label>
-        <input id="order" type="number" min="1" formControlName="order" />
-        @if (checklistItemForm.controls.order.invalid && checklistItemForm.controls.order.touched) {
-          <p class="field-error">Order must be 1 or greater.</p>
-        }
-      </div>
-
-      <label class="checkbox-field">
-        <input type="checkbox" formControlName="required" />
-        Required
-      </label>
-
-      <label class="checkbox-field">
-        <input type="checkbox" formControlName="active" />
-        Active
-      </label>
-    </div>
-
-    @if (errorMessage()) {
-      <p class="form-error" role="alert">{{ errorMessage() }}</p>
-    }
-
-    <div class="form-actions">
-      <button type="submit" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save checklist item' }}</button>
-      @if (editingChecklistItem()) {
-        <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel</button>
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
       }
-    </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save checklist item' }}</button>
+        @if (editingChecklistItem()) {
+          <button type="button" class="secondary-button" (click)="cancelEdit()">Cancel</button>
+        }
+      </div>
+    </section>
   </form>
 
   <section class="checklist-list" aria-labelledby="checklist-items-list-title">
